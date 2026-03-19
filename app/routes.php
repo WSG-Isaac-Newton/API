@@ -15,11 +15,6 @@ return function (App $app) {
         return $response;
     });
 
-    $app->get('/', function (Request $request, Response $response) {
-        $response->getBody()->write('Hello world!');
-        return $response;
-    });
-
     $app->group('/webhooks/congressus', function (Group $group) {
         $group->group('/member', function (Group $group) {
             $group->get('/birthday', ListBirthdaysAction::class);

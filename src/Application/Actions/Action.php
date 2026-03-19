@@ -74,19 +74,17 @@ abstract class Action
         return $this->args[$name];
     }
 
+    protected function respondOk(): Response
+    {
+        return $this->respondWithData(null, 200);
+    }
+
     /**
      * @param array|object|null $data
      */
     protected function respondWithData($data = null, int $statusCode = 200): Response
     {
         $payload = new ActionPayload($statusCode, $data);
-
-        return $this->respond($payload);
-    }
-
-    protected function respondCreated(): Response
-    {
-        $payload = new ActionPayload(201);
 
         return $this->respond($payload);
     }

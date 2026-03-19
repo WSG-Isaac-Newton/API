@@ -13,7 +13,7 @@ final class CreateBirthdayAction extends Action
         $member = Member::fromRequest($this->request);
 
         if (!$member->mayShowBirthday || $member->isDeleted || $member->isArchived) {
-            return $this->respondCreated();
+            return $this->respondOk();
         }
 
         if (!$member->memberId || !$member->dateOfBirth) {
@@ -27,6 +27,6 @@ final class CreateBirthdayAction extends Action
         ]);
 
         $this->logger->info("Birthday for member ID {$member->memberId} was created.");
-        return $this->respondCreated();
+        return $this->respondOk();
     }
 }

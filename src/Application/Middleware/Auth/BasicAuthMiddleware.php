@@ -13,7 +13,7 @@ class BasicAuthMiddleware implements MiddlewareInterface
     public function __construct(
         private readonly ResponseFactoryInterface $responseFactory,
         private readonly \PDO $db,
-        private readonly WebhookScope $webhookEvent,
+        private readonly Scope $scope,
     ) {}
 
     public function process(Request $request, RequestHandler $handler): Response
@@ -51,9 +51,9 @@ class BasicAuthMiddleware implements MiddlewareInterface
     {
         $stmt = $this->db->prepare(
             "SELECT password_hash FROM congressus_webhooks_auth 
-            WHERE webhook_event = :webhookEvent AND active = 1"
+            WHERE scope = :scope AND active = 1"
         );
-        $stmt->execute([':webhookEvent' => $this->webhookEvent->value]);
+        $stmt->execute([':scope' => $this->scope->value]);
 
         return $stmt->fetch(\PDO::FETCH_COLUMN);
     }

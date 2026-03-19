@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Application\Middleware\Auth\BasicAuthMiddleware;
-use App\Application\Middleware\Auth\WebhookScope;
+use App\Application\Middleware\Auth\Scope;
 use App\Application\Settings\SettingsInterface;
 use DI\ContainerBuilder;
 use Monolog\Handler\StreamHandler;
@@ -42,11 +42,18 @@ return function (ContainerBuilder $containerBuilder) {
         ResponseFactoryInterface::class => function (ContainerInterface $c) {
             return $c->get(ResponseFactory::class);
         },
-        "Congressus.BasicAuth.MemberBirthday" => function (ContainerInterface $c) {
+        "BasicAuth.BirthdayProducer" => function (ContainerInterface $c) {
             return new BasicAuthMiddleware(
                 $c->get(ResponseFactoryInterface::class),
                 $c->get(\PDO::class),
-                WebhookScope::MemberBirthday,
+                Scope::BirthdayProducer,
+            );
+        },
+        "BasicAuth.BirthdayConsumer" => function (ContainerInterface $c) {
+            return new BasicAuthMiddleware(
+                $c->get(ResponseFactoryInterface::class),
+                $c->get(\PDO::class),
+                Scope::BirthdayConsumer,
             );
         },
     ]);

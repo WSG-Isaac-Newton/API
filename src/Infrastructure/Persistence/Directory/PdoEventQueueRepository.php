@@ -4,6 +4,7 @@ namespace App\Infrastructure\Persistence\Directory;
 
 use App\Domain\Directory\Event;
 use App\Domain\Directory\EventQueueRepository;
+use App\Domain\Directory\EventStatus;
 use App\Infrastructure\Factory\DirectoryEventFactory;
 
 final readonly class PdoEventQueueRepository implements EventQueueRepository
@@ -18,22 +19,28 @@ final readonly class PdoEventQueueRepository implements EventQueueRepository
 
     public function list(): array
     {
-        $stmt = $this->db->query("SELECT * FROM $this->tableName");
+        $stmt = $this->db->query("SELECT * FROM $this->tableName WHERE `event_status` = 'pending' ORDER BY created_at ASC");
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function pop(): ?Event
     {
-        $stmt = $this->db->query("SELECT * FROM $this->tableName ORDER BY created_at ASC LIMIT 1");
+        $stmt = $this->db->query("SELECT * FROM $this->tableName WHERE `event_status` = 'pending' ORDER BY created_at ASC LIMIT 1");
         $event = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if ($event) {
-            $deleteStmt = $this->db->prepare("DELETE FROM $this->tableName WHERE id = :id");
-            $deleteStmt->execute([':id' => $event['id']]);
+            $stmt = $this->db->prepare("UPDATE $this->tableName SET `event_status` = 'processing' WHERE id = :id");
+            $stmt->execute([':id' => $event['id']]);
             return DirectoryEventFactory::createFromDatabaseRecord($event);
         }
 
         return null;
+    }
+
+    public function mark(int $id, EventStatus $status): void
+    {
+        $stmt = $this->db->prepare("UPDATE $this->tableName SET `event_status` = :eventStatus WHERE id = :id");
+        $stmt->execute([':eventStatus' => $status->value, ':id' => $id]);
     }
 
     public function push(Event $event): void

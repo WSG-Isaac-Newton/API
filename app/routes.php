@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Application\Actions\Directory\ListEventQueueAction;
 use App\Application\Actions\Directory\PopEventQueueAction;
 use App\Application\Actions\Directory\CreateGroupEventAction;
+use App\Application\Actions\Directory\MarkEventStatusAction;
 use App\Application\Actions\Member\CreateBirthdayAction;
 use App\Application\Actions\Member\ListBirthdaysAction;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -28,9 +29,10 @@ return function (App $app) {
     });
 
     $app->group('/directory', function (RouteGroup $routeGroup) {
-        $routeGroup->get('/event-queue', ListEventQueueAction::class); 
         $routeGroup->group('/event-queue', function (RouteGroup $eventQueueGroup) {
+            $eventQueueGroup->get('', ListEventQueueAction::class); 
             $eventQueueGroup->post('/pop', PopEventQueueAction::class);
+            $eventQueueGroup->put('/{id}/mark', MarkEventStatusAction::class);
         });
     })->add("BasicAuth.DirectoryEventConsumer");
 };

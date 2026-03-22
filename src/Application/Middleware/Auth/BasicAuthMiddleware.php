@@ -2,6 +2,8 @@
 
 namespace App\Application\Middleware\Auth;
 
+use App\Domain\Auth\BasicAuthRepository;
+use App\Domain\Auth\Scope;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -12,14 +14,14 @@ class BasicAuthMiddleware implements MiddlewareInterface
 {
     public function __construct(
         private readonly ResponseFactoryInterface $responseFactory,
-        private readonly \PDO $db,
+        private readonly BasicAuthRepository $repository,
         private readonly Scope $scope,
     ) {}
 
     public function process(Request $request, RequestHandler $handler): Response
     {
         try {
-            $passwordHash = $this->getPasswordHash($request);
+            $passwordHash = $this->repository->getPasswordHash($this->scope);
 
             if ($passwordHash === null) {
                 return $this->authorize($request, $handler);
@@ -45,17 +47,6 @@ class BasicAuthMiddleware implements MiddlewareInterface
     private function authorize(Request $request, RequestHandler $handler): Response
     {
         return $handler->handle($request);
-    }
-
-    private function getPasswordHash(): ?string
-    {
-        $stmt = $this->db->prepare(
-            "SELECT password_hash FROM congressus_webhooks_auth 
-            WHERE scope = :scope AND active = 1"
-        );
-        $stmt->execute([':scope' => $this->scope->value]);
-
-        return $stmt->fetch(\PDO::FETCH_COLUMN);
     }
 
     private function verifyPassword(Request $request, string $passwordHash): bool

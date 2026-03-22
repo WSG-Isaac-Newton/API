@@ -3,8 +3,9 @@
 declare(strict_types=1);
 
 use App\Application\Middleware\Auth\BasicAuthMiddleware;
-use App\Application\Middleware\Auth\Scope;
 use App\Application\Settings\SettingsInterface;
+use App\Domain\Auth\BasicAuthRepository;
+use App\Domain\Auth\Scope;
 use DI\ContainerBuilder;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -45,28 +46,28 @@ return function (ContainerBuilder $containerBuilder) {
         "BasicAuth.BirthdayProducer" => function (ContainerInterface $c) {
             return new BasicAuthMiddleware(
                 $c->get(ResponseFactoryInterface::class),
-                $c->get(\PDO::class),
+                $c->get(BasicAuthRepository::class),
                 Scope::BirthdayProducer,
             );
         },
         "BasicAuth.BirthdayConsumer" => function (ContainerInterface $c) {
             return new BasicAuthMiddleware(
                 $c->get(ResponseFactoryInterface::class),
-                $c->get(\PDO::class),
+                $c->get(BasicAuthRepository::class),
                 Scope::BirthdayConsumer,
             );
         },
         "BasicAuth.DirectoryEventProducer" => function (ContainerInterface $c) {
             return new BasicAuthMiddleware(
                 $c->get(ResponseFactoryInterface::class),
-                $c->get(\PDO::class),
+                $c->get(BasicAuthRepository::class),
                 Scope::DirectoryEventProducer,
             );
         },
         "BasicAuth.DirectoryEventConsumer" => function (ContainerInterface $c) {
             return new BasicAuthMiddleware(
                 $c->get(ResponseFactoryInterface::class),
-                $c->get(\PDO::class),
+                $c->get(BasicAuthRepository::class),
                 Scope::DirectoryEventConsumer,
             );
         },

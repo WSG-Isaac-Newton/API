@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\Middleware\Auth;
+namespace App\Domain\Auth;
 
 enum Scope: string
 {

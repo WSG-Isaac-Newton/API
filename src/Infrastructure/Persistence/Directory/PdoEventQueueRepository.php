@@ -13,7 +13,7 @@ final readonly class PdoEventQueueRepository implements EventQueueRepository
     public function __construct(
         private \PDO $db,
     ) {
-        $this->tableName = 'congressus_webhooks_event_queue';
+        $this->tableName = 'directory_event_queue';
     }
 
     public function list(): array

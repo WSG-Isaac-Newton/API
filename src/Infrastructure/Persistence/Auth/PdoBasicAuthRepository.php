@@ -12,7 +12,7 @@ final class PdoBasicAuthRepository implements BasicAuthRepository
     public function __construct(
         private \PDO $db,
     ) {
-        $this->tableName = 'congressus_webhooks_auth';
+        $this->tableName = 'basic_auth';
     }
 
     public function getPasswordHash(Scope $scope): ?string

@@ -3,7 +3,7 @@
 namespace App\Application\Actions\Member;
 
 use App\Application\Actions\Action;
-use App\Domain\Congressus\Member;
+use App\Domain\Congressus\Webhook\Member;
 use Psr\Http\Message\ResponseInterface as Response;
 
 final class CreateBirthdayAction extends Action

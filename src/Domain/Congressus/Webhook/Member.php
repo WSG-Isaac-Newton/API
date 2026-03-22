@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Domain\Congressus;
+namespace App\Domain\Congressus\Webhook;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-final readonly class Member
+final readonly class Member implements ParseableFromRequest
 {
     public function __construct(
         public int     $memberId,

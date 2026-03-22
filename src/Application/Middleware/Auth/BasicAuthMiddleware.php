@@ -22,19 +22,15 @@ class BasicAuthMiddleware implements MiddlewareInterface
     {
         try {
             $passwordHash = $this->repository->getPasswordHash($this->scope);
-
-            if ($passwordHash === null) {
-                return $this->authorize($request, $handler);
-            }
-
-            if (!$this->verifyPassword($request, $passwordHash)) {
-                return $this->unauthorized();
-            }
         } catch (\Throwable) {
+            return $this->unauthorized(); // prevent debug info leakage
+        }
+
+        if ($passwordHash !== null && !$this->verifyPassword($request, $passwordHash)) {
             return $this->unauthorized();
         }
 
-        return $this->authorize($request, $handler);
+        return $handler->handle($request);
     }
 
     private function unauthorized(): Response
@@ -42,11 +38,6 @@ class BasicAuthMiddleware implements MiddlewareInterface
         return $this->responseFactory
             ->createResponse(401)
             ->withHeader('WWW-Authenticate', 'Basic realm="API"');
-    }
-
-    private function authorize(Request $request, RequestHandler $handler): Response
-    {
-        return $handler->handle($request);
     }
 
     private function verifyPassword(Request $request, string $passwordHash): bool

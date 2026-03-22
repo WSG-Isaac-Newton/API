@@ -2,8 +2,12 @@
 
 declare(strict_types=1);
 
-use App\Domain\User\UserRepository;
-use App\Infrastructure\Persistence\User\InMemoryUserRepository;
+use App\Domain\Directory\EventQueueRepository;
+use App\Infrastructure\Persistence\Directory\PdoEventQueueRepository;
 use DI\ContainerBuilder;
 
-return function (ContainerBuilder $containerBuilder) {};
+return function (ContainerBuilder $containerBuilder) {
+    $containerBuilder->addDefinitions([
+        EventQueueRepository::class => \DI\autowire(PdoEventQueueRepository::class),
+    ]);
+};

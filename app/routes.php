@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Application\Actions\Directory\ListEventQueueAction;
+use App\Application\Actions\Directory\PopEventQueueAction;
 use App\Application\Actions\Group\GroupAction;
 use App\Application\Actions\Member\CreateBirthdayAction;
 use App\Application\Actions\Member\ListBirthdaysAction;
@@ -23,5 +25,12 @@ return function (App $app) {
         });
 
         $routeGroup->post('/group', GroupAction::class);
+    });
+
+    $app->group('/directory', function (RouteGroup $routeGroup) {
+        $routeGroup->get('/event-queue', ListEventQueueAction::class); 
+        $routeGroup->group('/event-queue', function (RouteGroup $eventQueueGroup) {
+            $eventQueueGroup->post('/pop', PopEventQueueAction::class);
+        });
     });
 };

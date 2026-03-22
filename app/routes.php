@@ -24,7 +24,7 @@ return function (App $app) {
             $memberRouteGroup->post('/birthday', CreateBirthdayAction::class)->add("BasicAuth.BirthdayProducer");
         });
 
-        $routeGroup->post('/group', CreateGroupEventAction::class);
+        $routeGroup->post('/group', CreateGroupEventAction::class)->add("BasicAuth.DirectoryEventProducer");
     });
 
     $app->group('/directory', function (RouteGroup $routeGroup) {
@@ -32,5 +32,5 @@ return function (App $app) {
         $routeGroup->group('/event-queue', function (RouteGroup $eventQueueGroup) {
             $eventQueueGroup->post('/pop', PopEventQueueAction::class);
         });
-    });
+    })->add("BasicAuth.DirectoryEventConsumer");
 };

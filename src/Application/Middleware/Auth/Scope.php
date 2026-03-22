@@ -6,4 +6,6 @@ enum Scope: string
 {
     case BirthdayProducer = 'BirthdayProducer';
     case BirthdayConsumer = 'BirthdayConsumer';
+    case DirectoryEventProducer = 'DirectoryEventProducer';
+    case DirectoryEventConsumer = 'DirectoryEventConsumer';
 }

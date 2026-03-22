@@ -56,5 +56,19 @@ return function (ContainerBuilder $containerBuilder) {
                 Scope::BirthdayConsumer,
             );
         },
+        "BasicAuth.DirectoryEventProducer" => function (ContainerInterface $c) {
+            return new BasicAuthMiddleware(
+                $c->get(ResponseFactoryInterface::class),
+                $c->get(\PDO::class),
+                Scope::DirectoryEventProducer,
+            );
+        },
+        "BasicAuth.DirectoryEventConsumer" => function (ContainerInterface $c) {
+            return new BasicAuthMiddleware(
+                $c->get(ResponseFactoryInterface::class),
+                $c->get(\PDO::class),
+                Scope::DirectoryEventConsumer,
+            );
+        },
     ]);
 };

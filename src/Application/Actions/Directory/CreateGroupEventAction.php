@@ -1,21 +1,30 @@
 <?php
 
-namespace App\Application\Actions\Group;
+namespace App\Application\Actions\Directory;
 
-use App\Application\Actions\Action;
 use App\Domain\Congressus\Webhook\Group;
 use App\Domain\Congressus\Webhook\Trigger;
+use App\Infrastructure\Factory\DirectoryEventFactory;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Exception\HttpBadRequestException;
 
-final class GroupAction extends Action
+final class CreateGroupEventAction extends EventQueueAction
 {
     protected function action(): Response
     {
         match ($this->getTrigger()) {
-            Trigger::GroupAdded, Trigger::GroupUpdated => $this->queueGroupEvent(),
-            Trigger::GroupMembershipAdded, Trigger::GroupMembershipUpdated => $this->queueGroupMembershipEvent(),
-            Trigger::GroupDeleted, Trigger::GroupMembershipDeleted => $this->ignore(), // ignore until Congressus fixes the schema
+            Trigger::GroupAdded,
+            Trigger::GroupUpdated
+            => $this->queueGroupEvent(),
+
+            Trigger::GroupMembershipAdded,
+            Trigger::GroupMembershipUpdated
+            => $this->queueGroupMembershipEvent(),
+
+            Trigger::GroupDeleted,
+            Trigger::GroupMembershipDeleted
+            => $this->ignore(), // ignore until Congressus fixes the schema
+
             default => throw new HttpBadRequestException($this->request, "Unsupported trigger"),
         };
 
@@ -24,42 +33,23 @@ final class GroupAction extends Action
 
     protected function ignore(): void {}
 
-    protected function queueGroupEvent(): void
+    protected function queueGroupEvent(?int $memberId = null): void
     {
         $trigger = $this->getTrigger();
         $group = $this->getGroup();
 
-        $stmt = $this->db->prepare(
-            "INSERT INTO congressus_webhooks_event_queue (`event_trigger`, `group_id`, `group_name`, `group_breadcrumbs`) VALUES (:trigger, :groupId, :groupName, :groupBreadcrumbs);"
-        );
-        $stmt->execute([
-            ':trigger' => $trigger->value,
-            ':groupId' => $group->id,
-            ':groupName' => $group->name,
-            ':groupBreadcrumbs' => $group->getBreadcrumbs(),
-        ]);
+        $this->eventQueue->push(DirectoryEventFactory::createFromCongressusGroupWebhook(
+            trigger: $trigger,
+            group: $group,
+            memberId: $memberId
+        ));
 
         $this->logger->info("Queued {$trigger->value} for group {$group->id}");
     }
 
     protected function queueGroupMembershipEvent(): void
     {
-        $trigger = $this->getTrigger();
-        $group = $this->getGroup();
-        $memberId = $this->getMemberId();
-
-        $stmt = $this->db->prepare(
-            "INSERT INTO congressus_webhooks_event_queue (`event_trigger`, `group_id`, `group_name`, `group_breadcrumbs`,`member_id`) VALUES (:trigger, :groupId, :groupName, :groupBreadcrumbs, :memberId);"
-        );
-        $stmt->execute([
-            ':trigger' => $trigger->value,
-            ':groupId' => $group->id,
-            ':groupName' => $group->name,
-            ':groupBreadcrumbs' => $group->getBreadcrumbs(),
-            ':memberId' => $memberId,
-        ]);
-
-        $this->logger->info("Queued {$trigger->value} for group {$group->id}");
+        $this->queueGroupEvent($this->getMemberId());
     }
 
     protected function getTrigger(): Trigger

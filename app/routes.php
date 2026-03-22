@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Application\Actions\Directory\ListEventQueueAction;
 use App\Application\Actions\Directory\PopEventQueueAction;
-use App\Application\Actions\Group\GroupAction;
+use App\Application\Actions\Directory\CreateGroupEventAction;
 use App\Application\Actions\Member\CreateBirthdayAction;
 use App\Application\Actions\Member\ListBirthdaysAction;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -24,7 +24,7 @@ return function (App $app) {
             $memberRouteGroup->post('/birthday', CreateBirthdayAction::class)->add("BasicAuth.BirthdayProducer");
         });
 
-        $routeGroup->post('/group', GroupAction::class);
+        $routeGroup->post('/group', CreateGroupEventAction::class);
     });
 
     $app->group('/directory', function (RouteGroup $routeGroup) {

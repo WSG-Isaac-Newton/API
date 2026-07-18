@@ -35,4 +35,8 @@ return function (App $app) {
             $eventQueueGroup->put('/{id}/mark', MarkEventStatusAction::class);
         });
     })->add("BasicAuth.DirectoryEventConsumer");
+
+    $app->group('/polls', function (RouteGroup $routeGroup) {
+        $routeGroup->get('/active', \App\Application\Actions\Poll\ListActivePollsAction::class);
+    });
 };

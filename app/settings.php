@@ -21,6 +21,22 @@ return function (ContainerBuilder $containerBuilder) {
                     'path' => isset($_ENV['docker']) ? 'php://stdout' : __DIR__ . '/../logs/app.log',
                     'level' => Logger::DEBUG,
                 ],
+                'db' => [
+                    'default' => [
+                        'driver'   => $_ENV['DB_DRIVER'] ?? 'mysql',
+                        'host'     => $_ENV['DB_HOST'] ?? 'localhost',
+                        'database' => $_ENV['DB_DATABASE'] ?? '',
+                        'username' => $_ENV['DB_USERNAME'] ?? '',
+                        'password' => $_ENV['DB_PASSWORD'] ?? '',
+                    ],
+                    'poll' => [
+                        'driver'   => $_ENV['DB_POLL_DRIVER'] ?? $_ENV['DB_DRIVER'] ?? 'mysql',
+                        'host'     => $_ENV['DB_POLL_HOST'] ?? $_ENV['DB_HOST'] ?? 'localhost',
+                        'database' => $_ENV['DB_POLL_DATABASE'] ?? '',
+                        'username' => $_ENV['DB_POLL_USERNAME'] ?? '',
+                        'password' => $_ENV['DB_POLL_PASSWORD'] ?? '',
+                    ],
+                ],
             ]);
         }
     ]);

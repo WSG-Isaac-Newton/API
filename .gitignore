@@ -7,3 +7,4 @@
 .phpunit.result.cache
 .env
 .github/
+Deploy.ps1

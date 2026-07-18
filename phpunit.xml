@@ -24,4 +24,17 @@
             <directory suffix=".php">./src/</directory>
         </whitelist>
     </filter>
+    <php>
+        <env name="DEBUG" value="true"/>
+
+        <env name="DB_DRIVER" value="mysql"/>
+        <env name="DB_HOST" value="127.0.0.1"/>
+        <env name="DB_DATABASE" value="api"/>
+        <env name="DB_USERNAME" value="root"/>
+        <env name="DB_PASSWORD" value=""/>
+
+        <env name="DB_POLL_DATABASE" value="poll"/>
+        <env name="DB_POLL_USERNAME" value="root"/>
+        <env name="DB_POLL_PASSWORD" value=""/>
+    </php>
 </phpunit>

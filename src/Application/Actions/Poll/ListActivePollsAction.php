@@ -24,10 +24,6 @@ final class ListActivePollsAction extends Action
 
         $polls = $this->pollRepository->findActive();
 
-        foreach ($polls as &$poll) {
-            $poll['options'] = $this->pollRepository->findOptionsByPollId((int) $poll['poll_id']);
-        }
-
         return $this->respondWithData($polls);
     }
 }

@@ -49,6 +49,15 @@ return function (ContainerBuilder $containerBuilder) {
                 \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
             ]);
         },
+        'db.birthday' => function (\Psr\Container\ContainerInterface $c) {
+            $config = $c->get(SettingsInterface::class)->get('db')['birthday'];
+            $dsn = "{$config['driver']}:host={$config['host']};dbname={$config['database']};charset=utf8mb4";
+
+            return new \PDO($dsn, $config['username'], $config['password'], [
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+            ]);
+        },
         ResponseFactoryInterface::class => function (ContainerInterface $c) {
             return $c->get(ResponseFactory::class);
         },

@@ -36,6 +36,13 @@ return function (ContainerBuilder $containerBuilder) {
                         'username' => $_ENV['DB_POLL_USERNAME'] ?? '',
                         'password' => $_ENV['DB_POLL_PASSWORD'] ?? '',
                     ],
+                    'birthday' => [
+                        'driver'   => $_ENV['DB_BIRTHDAY_DRIVER'] ?? $_ENV['DB_DRIVER'] ?? 'mysql',
+                        'host'     => $_ENV['DB_BIRTHDAY_HOST'] ?? $_ENV['DB_HOST'] ?? 'localhost',
+                        'database' => $_ENV['DB_BIRTHDAY_DATABASE'] ?? $_ENV['DB_DATABASE'] ?? '',
+                        'username' => $_ENV['DB_BIRTHDAY_USERNAME'] ?? $_ENV['DB_USERNAME']?? '',
+                        'password' => $_ENV['DB_BIRTHDAY_PASSWORD'] ?? $_ENV['DB_PASSWORD']?? '',
+                    ],
                 ],
             ]);
         }

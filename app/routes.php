@@ -21,7 +21,6 @@ return function (App $app) {
 
     $app->group('/webhooks/congressus', function (RouteGroup $routeGroup) {
         $routeGroup->group('/member', function (RouteGroup $memberRouteGroup) {
-            $memberRouteGroup->get('/todays-birthdays', ListBirthdaysAction::class)->add("BasicAuth.BirthdayConsumer");
             $memberRouteGroup->post('/birthday', CreateBirthdayAction::class)->add("BasicAuth.BirthdayProducer");
         });
 
@@ -38,5 +37,9 @@ return function (App $app) {
 
     $app->group('/polls', function (RouteGroup $routeGroup) {
         $routeGroup->get('/active', \App\Application\Actions\Poll\ListActivePollsAction::class);
+    });
+
+    $app->group('/members', function (RouteGroup $routeGroup) {
+        $routeGroup->get('/todays-birthdays', ListBirthdaysAction::class)->add("BasicAuth.BirthdayConsumer");
     });
 };

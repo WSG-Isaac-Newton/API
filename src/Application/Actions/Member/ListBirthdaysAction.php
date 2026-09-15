@@ -1,32 +1,40 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\Actions\Member;
 
 use App\Application\Actions\Action;
+use App\Domain\Member\Repository\BirthdayRepository;
 use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Log\LoggerInterface;
 
 final class ListBirthdaysAction extends Action
 {
-    protected function action(): Response
-    {
-        $this->logger->info("Birthday list was viewed.");
-
-        $this->deleteOldBirthdays();
-
-        $stmt = $this->db->query(
-            "SELECT congressus_member_id FROM birthdays 
-            WHERE DATE_FORMAT(date_of_birth, '%m-%d') = DATE_FORMAT(NOW(), '%m-%d');"
-        );
-        $birthdays = $stmt->fetchAll(\PDO::FETCH_COLUMN);
-
-        return $this->respondWithData($birthdays);
+    public function __construct(
+        LoggerInterface $logger,
+        private readonly BirthdayRepository $birthdayRepository
+    ) {
+        parent::__construct($logger);
     }
 
-    private function deleteOldBirthdays(): void
+    protected function action(): Response
     {
-        $this->db->query(
-            "DELETE FROM birthdays
-            WHERE DATE_FORMAT(date_of_birth, '%m-%d') != DATE_FORMAT(NOW(), '%m-%d');"
-        );
+        try {
+            $this->birthdayRepository->deleteOldBirthdays();
+        } catch (\PDOException $e) {
+            $this->logger->error("Failed to delete old birthdays: " . $e->getMessage());
+            return $this->respondWithData(['error' => 'Failed to delete old birthdays'], 500);
+        }
+
+        try {
+            $birthdays = $this->birthdayRepository->getTodaysBirthdays();
+            $this->logger->info("Birthday list was viewed.");
+        } catch (\PDOException $e) {
+            $this->logger->error("Failed to retrieve today's birthdays: " . $e->getMessage());
+            return $this->respondWithData(['error' => "Failed to retrieve today's birthdays"], 500);
+        }
+
+        return $this->respondWithData($birthdays);
     }
 }

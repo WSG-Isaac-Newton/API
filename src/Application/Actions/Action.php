@@ -67,7 +67,7 @@ abstract class Action
             throw new HttpBadRequestException($this->request, "Could not resolve argument `{$name}`.");
         }
 
-        return $this->args[$name];
+        return rawurldecode($this->args[$name]);
     }
 
     protected function respondOk(): Response

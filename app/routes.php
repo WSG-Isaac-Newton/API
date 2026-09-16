@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
-use App\Application\Actions\Directory\ListEventQueueAction;
-use App\Application\Actions\Directory\PopEventQueueAction;
 use App\Application\Actions\Directory\CreateGroupEventAction;
+use App\Application\Actions\Directory\ListEventQueueAction;
 use App\Application\Actions\Directory\MarkEventStatusAction;
+use App\Application\Actions\Directory\PopEventQueueAction;
 use App\Application\Actions\Member\CreateBirthdayAction;
 use App\Application\Actions\Member\ListBirthdaysAction;
+use App\Application\Actions\Puzzle\GetAdvertisementFileAction;
+use App\Application\Actions\Puzzle\GetPuzzleFileAction;
+use App\Application\Actions\Puzzle\ListPuzzlesAction;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
@@ -42,4 +45,11 @@ return function (App $app) {
     $app->group('/members', function (RouteGroup $routeGroup) {
         $routeGroup->get('/todays-birthdays', ListBirthdaysAction::class)->add("BasicAuth.BirthdayConsumer");
     });
+
+    $app->group('/puzzles', function (RouteGroup $routeGroup) {
+        $routeGroup->get('', ListPuzzlesAction::class);
+        $routeGroup->get('/{filename}', GetPuzzleFileAction::class);
+        });
+
+    $app->get('/puzzles-advertisement', GetAdvertisementFileAction::class);
 };

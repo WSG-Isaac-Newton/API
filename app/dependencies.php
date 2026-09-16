@@ -6,6 +6,7 @@ use App\Application\Middleware\Auth\BasicAuthMiddleware;
 use App\Application\Settings\SettingsInterface;
 use App\Domain\Auth\BasicAuthRepository;
 use App\Domain\Auth\Scope;
+use App\Infrastructure\FileStorage\Puzzle\LocalPuzzleFilesReader;
 use DI\ContainerBuilder;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -88,6 +89,10 @@ return function (ContainerBuilder $containerBuilder) {
                 $c->get(BasicAuthRepository::class),
                 Scope::DirectoryEventConsumer,
             );
+        },
+        LocalPuzzleFilesReader::class => function (ContainerInterface $c) {
+            $config = $c->get(SettingsInterface::class)->get('puzzle');
+            return new LocalPuzzleFilesReader($config['configPath'], $config['advertisementFolder']);
         },
     ]);
 };

@@ -1,12 +1,13 @@
 # Endpoints
 Method | URI
 -|-
-`GET` | /webhooks/congressus/member/todays-birthdays
 `POST` | /webhooks/congressus/member/birthday
 `POST` | /webhooks/congressus/group
 `GET` | /directory/event-queue
 `POST` | /directory/event-queue/pop
 `PUT` | /directory/event-queue/{id}/mark
+`GET` | /members/todays-birthdays
+`GET` | /polls/active
 
 # Database migrations
 The software requires a MySQL/MariaDB database with an InnoDB engine. Below, you can find the SQL queries to create the tables. Other DBMS's may or may not work, but this is not and will not be tested nor supported.

@@ -8,6 +8,9 @@ Method | URI
 `PUT` | /directory/event-queue/{id}/mark
 `GET` | /members/todays-birthdays
 `GET` | /polls/active
+`GET` | /puzzles
+`GET` | /puzzles/{filename}
+`GET` | /puzzles-advertisement
 
 # Database migrations
 The software requires a MySQL/MariaDB database with an InnoDB engine. Below, you can find the SQL queries to create the tables. Other DBMS's may or may not work, but this is not and will not be tested nor supported.

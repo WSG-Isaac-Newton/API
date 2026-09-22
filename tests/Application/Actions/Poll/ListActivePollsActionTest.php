@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Test\TestCase\Action;
+namespace Tests\Application\Actions\Poll;
 
 use Tests\TestCase;
 

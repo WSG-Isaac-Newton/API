@@ -91,8 +91,7 @@ return function (ContainerBuilder $containerBuilder) {
             );
         },
         LocalPuzzleFilesReader::class => function (ContainerInterface $c) {
-            $config = $c->get(SettingsInterface::class)->get('puzzle');
-            return new LocalPuzzleFilesReader("var" . DIRECTORY_SEPARATOR . "puzzle");
+            return new LocalPuzzleFilesReader(dirname(__DIR__) . DIRECTORY_SEPARATOR . "var" . DIRECTORY_SEPARATOR . "puzzle");
         },
     ]);
 };

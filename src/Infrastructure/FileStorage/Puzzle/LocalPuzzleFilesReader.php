@@ -23,7 +23,7 @@ final class LocalPuzzleFilesReader extends FileReader
         $this->todaysDate = date("Y-m-d");
         $this->todaysPuzzleDirectory = $this->rootDirectory . DIRECTORY_SEPARATOR . $this->todaysDate;
         $this->archiveDirectory = $this->rootDirectory . DIRECTORY_SEPARATOR . 'archive';
-        $this->defaultAdvertisementDirectory = $this->rootDirectory . DIRECTORY_SEPARATOR . 'advertisement';
+        $this->defaultAdvertisementDirectory = $this->rootDirectory . DIRECTORY_SEPARATOR . 'advertisements';
     }
 
     /**

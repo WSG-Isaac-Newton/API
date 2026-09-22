@@ -74,7 +74,7 @@ class LocalPuzzleFilesReaderTest extends TestCase
     public function testGetAdvertisementFileReturnsFile(): void
     {
         // Arrange
-        vfsStream::newFile('advertisement/ad.txt')->at($this->root);
+        vfsStream::newFile('advertisements/ad.txt')->at($this->root);
 
         // Act
         $file = $this->reader->getAdvertisementFile();

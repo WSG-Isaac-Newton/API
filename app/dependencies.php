@@ -92,7 +92,7 @@ return function (ContainerBuilder $containerBuilder) {
         },
         LocalPuzzleFilesReader::class => function (ContainerInterface $c) {
             $config = $c->get(SettingsInterface::class)->get('puzzle');
-            return new LocalPuzzleFilesReader($config['configPath'], $config['advertisementFolder']);
+            return new LocalPuzzleFilesReader("var" . DIRECTORY_SEPARATOR . "puzzle");
         },
     ]);
 };

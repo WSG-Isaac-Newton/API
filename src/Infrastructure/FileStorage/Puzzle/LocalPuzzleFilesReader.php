@@ -8,17 +8,22 @@ use App\Infrastructure\FileStorage\File;
 use App\Infrastructure\FileStorage\FileReader;
 use RuntimeException;
 
-define("DATE_TODAY_STRING", date("Y-m-d"));
-define("VAR_PUZZLES_PATH", PROJECT_ROOT . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'puzzle' . DIRECTORY_SEPARATOR);
-define("VAR_PUZZLES_TODAY_PATH", VAR_PUZZLES_PATH . DATE_TODAY_STRING . DIRECTORY_SEPARATOR);
-define("VAR_PUZZLES_ARCHIVE_PATH", PROJECT_ROOT . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'puzzle' . DIRECTORY_SEPARATOR . 'archive' . DIRECTORY_SEPARATOR);
-
 final class LocalPuzzleFilesReader extends FileReader
 {
+    private readonly string $configPath;
+    private readonly string $todaysDate;
+    private readonly string $todaysPuzzleDirectory;
+    private readonly string $archiveDirectory;
+    private readonly string $defaultAdvertisementDirectory;
+
     public function __construct(
-        private readonly string $configPath,
-        private readonly string $defaultAdvertisementFolder
+        private readonly string $rootDirectory,
     ) {
+        $this->configPath = $this->rootDirectory . DIRECTORY_SEPARATOR . 'config.ini';
+        $this->todaysDate = date("Y-m-d");
+        $this->todaysPuzzleDirectory = $this->rootDirectory . DIRECTORY_SEPARATOR . $this->todaysDate;
+        $this->archiveDirectory = $this->rootDirectory . DIRECTORY_SEPARATOR . 'archive';
+        $this->defaultAdvertisementDirectory = $this->rootDirectory . DIRECTORY_SEPARATOR . 'advertisement';
     }
 
     /**
@@ -34,90 +39,90 @@ final class LocalPuzzleFilesReader extends FileReader
             throw new RuntimeException('Puzzle advertisement file name is not set in the configuration.');
         }
 
-        $advertisementFolder = $config['PUZZLE_ADVERTISEMENT_FOLDER'] ?? $this->defaultAdvertisementFolder;
+        $directory = $config['PUZZLE_ADVERTISEMENT_DIRECTORY'] ?? $this->defaultAdvertisementDirectory;
 
-        $path = $advertisementFolder . DIRECTORY_SEPARATOR . $config['PUZZLE_ADVERTISEMENT_FILE'];
+        $file = $directory . DIRECTORY_SEPARATOR . $config['PUZZLE_ADVERTISEMENT_FILE'];
 
-        return $this->read($path);
+        return $this->read($file);
     }
 
     public function getPuzzleFileNames(): array
     {
-        $this->deleteStalePuzzleFolders();
-        $this->createTodaysPuzzleFolderIfNotExist();
+        $this->deleteStalePuzzleDirectories();
+        $this->createTodaysPuzzleDirectoryIfNotExist();
 
-        if (!is_dir(VAR_PUZZLES_TODAY_PATH)) {
+        if (!is_dir($this->todaysPuzzleDirectory)) {
             return [];
         }
 
-        $files = scandir(VAR_PUZZLES_TODAY_PATH);
+        $files = scandir($this->todaysPuzzleDirectory);
+
         return array_values(array_filter($files, fn($file) => !in_array($file, ['.', '..'])));
     }
 
     public function getPuzzleFile(string $filename): File
     {
-        $this->deleteStalePuzzleFolders();
-        $this->createTodaysPuzzleFolderIfNotExist();
+        $this->deleteStalePuzzleDirectories();
+        $this->createTodaysPuzzleDirectoryIfNotExist();
 
-        $path = VAR_PUZZLES_TODAY_PATH . $filename;
+        $path = $this->todaysPuzzleDirectory . DIRECTORY_SEPARATOR . $filename;
 
         return $this->read($path);
     }
 
-    private function deleteStalePuzzleFolders()
+    private function deleteStalePuzzleDirectories()
     {
-        $this->createPuzzleArchiveFolderIfNotExist();
-        
-        $puzzleFolderNames = preg_grep("/[0-9]{4}-[0-9]{2}-[0-9]{2}/", scandir(VAR_PUZZLES_PATH));
-        echo(count(scandir(VAR_PUZZLES_PATH)));
-        foreach ($puzzleFolderNames as $folderName) {
-            $folderPath = VAR_PUZZLES_PATH . $folderName;
+        $this->createPuzzleArchiveDirectoryIfNotExist();
 
-            if (!is_dir($folderPath)) {
+        $puzzleDirectories = preg_grep("/[0-9]{4}-[0-9]{2}-[0-9]{2}/", scandir($this->rootDirectory));
+        foreach ($puzzleDirectories as $directoryName) {
+            $directoryPath = $this->rootDirectory . DIRECTORY_SEPARATOR . $directoryName;
+
+            if (!is_dir($directoryPath)) {
                 continue;
             }
 
-            $isEmpty = function ($folderPath) {
-                $content = array_diff(scandir($folderPath), array('.', '..', '@eaDir', 'Thumbs.db'));
+            $isEmpty = function ($directoryPath) {
+                $content = array_diff(scandir($directoryPath), array('.', '..', '@eaDir', 'Thumbs.db'));
                 return count($content) == 0;
             };
-            if ($isEmpty($folderPath)) {
-                rmdir($folderPath);
+            if ($isEmpty($directoryPath)) {
+                rmdir($directoryPath);
                 continue;
             }
 
-            if ($folderName != DATE_TODAY_STRING) {
-                rename($folderPath, VAR_PUZZLES_ARCHIVE_PATH . $folderName);
+            if ($directoryName != $this->todaysDate) {
+                rename($directoryPath, $this->archiveDirectory . DIRECTORY_SEPARATOR . $directoryName);
                 continue;
             }
         }
     }
 
-    private function createPuzzleArchiveFolderIfNotExist()
+    private function createPuzzleArchiveDirectoryIfNotExist()
     {
-        if (!is_dir(VAR_PUZZLES_ARCHIVE_PATH)) {
-            mkdir(VAR_PUZZLES_ARCHIVE_PATH);
+        if (!is_dir($this->archiveDirectory)) {
+            mkdir($this->archiveDirectory, 0777, true);
         }
     }
 
-    private function createTodaysPuzzleFolderIfNotExist()
+    private function createTodaysPuzzleDirectoryIfNotExist()
     {
-        if (!is_dir(VAR_PUZZLES_TODAY_PATH)) {
-            mkdir(VAR_PUZZLES_TODAY_PATH);
+        if (!is_dir($this->todaysPuzzleDirectory)) {
+            mkdir($this->todaysPuzzleDirectory, 0777, true);
         }
     }
 
-	/**
-	 * @return array<string, mixed>
-	 */
-	private function readConfig(): array
-	{
-		$config = parse_ini_file($this->configPath, true, INI_SCANNER_TYPED);
+    /**
+     * @return array<string, mixed>
+     */
+    private function readConfig(): array
+    {
+        $config = parse_ini_file($this->configPath, true, INI_SCANNER_TYPED);
 
-		if ($config === false) {
-			throw new RuntimeException(sprintf('Unable to read puzzle configuration: %s', $this->configPath));
-		}
+        if ($config === false) {
+            throw new RuntimeException(sprintf('Unable to read puzzle configuration: %s', $this->configPath));
+        }
 
-		return $config;
-	}
+        return $config;
+    }
 }

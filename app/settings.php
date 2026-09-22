@@ -44,10 +44,6 @@ return function (ContainerBuilder $containerBuilder) {
                         'password' => $_ENV['DB_BIRTHDAY_PASSWORD'] ?? $_ENV['DB_PASSWORD']?? '',
                     ],
                 ],
-                'puzzle' => [
-                    'configPath' => $_ENV['PUZZLE_CONFIG_PATH'] ?? __DIR__ . '/../var/puzzle/config.ini',
-                    'advertisementFolder' => $_ENV['PUZZLE_ADVERTISMENT_FOLDER'] ?? __DIR__ . '/../var/puzzle/advertisement',
-                ],
             ]);
         }
     ]);

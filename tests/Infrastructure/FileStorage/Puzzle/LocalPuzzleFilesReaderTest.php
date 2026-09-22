@@ -21,7 +21,7 @@ class LocalPuzzleFilesReaderTest extends TestCase
         parent::setUp();
 
         // Global fixtures
-        $this->root = vfsStream::setup('var/puzzle');
+        $this->root = vfsStream::setup('var/puzzles');
         vfsStream::newFile('config.ini')->at($this->root)->setContent("PUZZLE_ADVERTISEMENT_FILE=ad.txt");
 
         // System under test

@@ -88,10 +88,13 @@ Method | URI
 `GET` | /polls/active
 
 ### Puzzles
-Puzzle assets can be downloaded from here. Puzzles are currently uploaded by manually copying the assets into the host's /var/.
+Puzzle assets can be downloaded from here. Puzzles are currently uploaded by manually copying the assets into `/var/puzzles/`.
 
 Method | URI
 -|-
 `GET` | /puzzles
 `GET` | /puzzles/{filename}
 `GET` | /puzzles-advertisement
+
+#### Cron job
+Make sure there is a cron job that runs /bin/schedule at least once a day at the start of the day. This job is needed to trigger archiving of old puzzles and creation of new folders.

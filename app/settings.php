@@ -33,16 +33,16 @@ return function (ContainerBuilder $containerBuilder) {
                     'poll' => [
                         'driver'   => $_ENV['DB_POLL_DRIVER'] ?? $_ENV['DB_DRIVER'] ?? 'mysql',
                         'host'     => $_ENV['DB_POLL_HOST'] ?? $_ENV['DB_HOST'] ?? 'localhost',
-                        'database' => $_ENV['DB_POLL_DATABASE'] ?? '',
-                        'username' => $_ENV['DB_POLL_USERNAME'] ?? '',
-                        'password' => $_ENV['DB_POLL_PASSWORD'] ?? '',
+                        'database' => $_ENV['DB_POLL_DATABASE'] ?? $_ENV['DB_DATABASE'] ?? '',
+                        'username' => $_ENV['DB_POLL_USERNAME'] ?? $_ENV['DB_USERNAME'] ?? '',
+                        'password' => $_ENV['DB_POLL_PASSWORD'] ?? $_ENV['DB_PASSWORD'] ?? '',
                     ],
                     'birthday' => [
                         'driver'   => $_ENV['DB_BIRTHDAY_DRIVER'] ?? $_ENV['DB_DRIVER'] ?? 'mysql',
                         'host'     => $_ENV['DB_BIRTHDAY_HOST'] ?? $_ENV['DB_HOST'] ?? 'localhost',
                         'database' => $_ENV['DB_BIRTHDAY_DATABASE'] ?? $_ENV['DB_DATABASE'] ?? '',
-                        'username' => $_ENV['DB_BIRTHDAY_USERNAME'] ?? $_ENV['DB_USERNAME']?? '',
-                        'password' => $_ENV['DB_BIRTHDAY_PASSWORD'] ?? $_ENV['DB_PASSWORD']?? '',
+                        'username' => $_ENV['DB_BIRTHDAY_USERNAME'] ?? $_ENV['DB_USERNAME'] ?? '',
+                        'password' => $_ENV['DB_BIRTHDAY_PASSWORD'] ?? $_ENV['DB_PASSWORD'] ?? '',
                     ],
                 ],
             ]);

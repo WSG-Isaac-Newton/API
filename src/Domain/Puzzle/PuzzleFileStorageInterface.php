@@ -9,4 +9,5 @@ interface PuzzleFileStorageInterface
     public function getPuzzleFileNames(): array;
     public function getPuzzleFile(string $filename): File;
     public function getAdvertisementFile(): File;
+    public function synchronize(): void;
 }

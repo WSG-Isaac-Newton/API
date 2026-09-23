@@ -1,0 +1,27 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use DI\ContainerBuilder;
+
+require __DIR__ . '/../vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->load();
+
+$containerBuilder = new ContainerBuilder();
+
+$settings = require __DIR__ . '/../app/settings.php';
+$settings($containerBuilder);
+
+$dependencies = require __DIR__ . '/../app/dependencies.php';
+$dependencies($containerBuilder);
+
+$container = $containerBuilder->build();
+
+$schedulers = $container->get('schedulers');
+
+foreach ($schedulers as $scheduler) {
+    $scheduler->run();
+}

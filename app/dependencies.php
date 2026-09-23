@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Application\Console\PuzzleFileStorageSynchronizer;
 use App\Application\Middleware\Auth\BasicAuthMiddleware;
 use App\Application\Settings\SettingsInterface;
 use App\Domain\Auth\BasicAuthRepository;
 use App\Domain\Auth\Scope;
+use App\Domain\Puzzle\PuzzleFileStorageInterface;
 use App\Infrastructure\FileStorage\Puzzle\LocalPuzzleFilesReader;
 use DI\ContainerBuilder;
 use Monolog\Handler\StreamHandler;
@@ -90,8 +92,29 @@ return function (ContainerBuilder $containerBuilder) {
                 Scope::DirectoryEventConsumer,
             );
         },
-        LocalPuzzleFilesReader::class => function (ContainerInterface $c) {
-            return new LocalPuzzleFilesReader(dirname(__DIR__) . DIRECTORY_SEPARATOR . "var" . DIRECTORY_SEPARATOR . "puzzles");
+
+
+        /* Puzzles */
+
+        PuzzleFileStorageInterface::class => function (ContainerInterface $c) {
+            return new LocalPuzzleFilesReader(
+                timezone: new \DateTimeZone($c->get(SettingsInterface::class)->get('timezone')),
+                rootDirectory: dirname(__DIR__) . DIRECTORY_SEPARATOR . "var" . DIRECTORY_SEPARATOR . "puzzles"
+            );
+        },
+        PuzzleFileStorageSynchronizer::class => function (ContainerInterface $c) {
+            return new PuzzleFileStorageSynchronizer(
+                storage: $c->get(PuzzleFileStorageInterface::class),
+            );
+        },
+
+
+        /* Schedulers */
+
+        'schedulers' => function (ContainerInterface $c) {
+            return [
+                $c->get(PuzzleFileStorageSynchronizer::class),
+            ];
         },
     ]);
 };

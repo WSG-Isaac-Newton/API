@@ -18,15 +18,17 @@ final class LocalPuzzleFilesReader extends FileReader implements PuzzleFileStora
     private readonly string $defaultAdvertisementDirectory;
 
     public function __construct(
+        private readonly \DateTimeZone $timezone,
         private readonly string $rootDirectory,
     ) {
         $this->configPath = $this->rootDirectory . DIRECTORY_SEPARATOR . 'config.ini';
-        $this->todaysDate = date("Y-m-d");
+        $this->todaysDate = new \DateTimeImmutable('now', $this->timezone)->format('Y-m-d');
         $this->todaysPuzzleDirectory = $this->rootDirectory . DIRECTORY_SEPARATOR . $this->todaysDate;
         $this->archiveDirectory = $this->rootDirectory . DIRECTORY_SEPARATOR . 'archive';
         $this->defaultAdvertisementDirectory = $this->rootDirectory . DIRECTORY_SEPARATOR . 'advertisements';
     }
 
+    #[\Override]
     public function getAdvertisementFile(): File
     {
         $config = $this->readConfig();
@@ -42,11 +44,9 @@ final class LocalPuzzleFilesReader extends FileReader implements PuzzleFileStora
         return $this->read($file);
     }
 
+    #[\Override]
     public function getPuzzleFileNames(): array
     {
-        $this->deleteStalePuzzleDirectories();
-        $this->createTodaysPuzzleDirectoryIfNotExist();
-
         if (!is_dir($this->todaysPuzzleDirectory)) {
             return [];
         }
@@ -56,19 +56,30 @@ final class LocalPuzzleFilesReader extends FileReader implements PuzzleFileStora
         return array_values(array_filter($files, fn($file) => !in_array($file, ['.', '..'])));
     }
 
+    #[\Override]
     public function getPuzzleFile(string $filename): File
     {
-        $this->deleteStalePuzzleDirectories();
-        $this->createTodaysPuzzleDirectoryIfNotExist();
+        if (!is_dir($this->todaysPuzzleDirectory)) {
+            throw new RuntimeException('Todays puzzle directory does not exist.');
+        }
 
         $path = $this->todaysPuzzleDirectory . DIRECTORY_SEPARATOR . $filename;
 
         return $this->read($path);
     }
 
-    private function deleteStalePuzzleDirectories()
+    #[\Override]
+    public function synchronize(): void
     {
-        $this->createPuzzleArchiveDirectoryIfNotExist();
+        $this->archiveStalePuzzleDirectories();
+        $this->createTodaysPuzzleDirectoryIfNotExists();
+    }
+
+    private function archiveStalePuzzleDirectories()
+    {
+        if (!is_dir($this->archiveDirectory)) {
+            mkdir($this->archiveDirectory, 0777, true);
+        }
 
         $puzzleDirectories = preg_grep("/[0-9]{4}-[0-9]{2}-[0-9]{2}/", scandir($this->rootDirectory));
         foreach ($puzzleDirectories as $directoryName) {
@@ -94,14 +105,7 @@ final class LocalPuzzleFilesReader extends FileReader implements PuzzleFileStora
         }
     }
 
-    private function createPuzzleArchiveDirectoryIfNotExist()
-    {
-        if (!is_dir($this->archiveDirectory)) {
-            mkdir($this->archiveDirectory, 0777, true);
-        }
-    }
-
-    private function createTodaysPuzzleDirectoryIfNotExist()
+    private function createTodaysPuzzleDirectoryIfNotExists()
     {
         if (!is_dir($this->todaysPuzzleDirectory)) {
             mkdir($this->todaysPuzzleDirectory, 0777, true);

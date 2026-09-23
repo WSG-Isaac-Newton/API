@@ -9,7 +9,6 @@ use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use Tests\TestCase;
 
-
 class LocalPuzzleFilesReaderTest extends TestCase
 {
     private readonly vfsStreamDirectory $root;
@@ -25,21 +24,8 @@ class LocalPuzzleFilesReaderTest extends TestCase
         vfsStream::newFile('config.ini')->at($this->root)->setContent("PUZZLE_ADVERTISEMENT_FILE=ad.txt");
 
         // System under test
-        $this->reader = new LocalPuzzleFilesReader($this->root->url());
-    }
-
-    public function testGetPuzzleFileNamesArchivesStalePuzzleFolders(): void
-    {
-        // Arrange
-        $staleFolder = vfsStream::newDirectory('2023-01-01')->at($this->root);
-        file_put_contents($staleFolder->url() . '/testfile.txt', '');
-
-        // Act
-        $_ = $this->reader->getPuzzleFileNames();
-
-        // Assert
-        $this->assertFalse($this->root->hasChild('2023-01-01'));
-        $this->assertTrue($this->root->hasChild('archive/2023-01-01'));
+        $timezone = new \DateTimeZone('UTC');
+        $this->reader = new LocalPuzzleFilesReader($timezone, $this->root->url());
     }
 
     public function testGetPuzzleFileNamesReturnsEmptyArrayWhenNoFiles(): void

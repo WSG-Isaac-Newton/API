@@ -13,6 +13,7 @@ return function (ContainerBuilder $containerBuilder) {
     $containerBuilder->addDefinitions([
         SettingsInterface::class => function () {
             return new Settings([
+                'timezone' => $_ENV['TIMEZONE'] ?? 'UTC',
                 'displayErrorDetails' => filter_var($_ENV['DEBUG'], FILTER_VALIDATE_BOOLEAN), // Should be set to false in production
                 'logError'            => false,
                 'logErrorDetails'     => false,

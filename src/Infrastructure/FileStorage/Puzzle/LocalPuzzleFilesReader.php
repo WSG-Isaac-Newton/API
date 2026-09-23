@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\FileStorage\Puzzle;
 
-use App\Infrastructure\FileStorage\File;
+use App\Domain\Puzzle\PuzzleFileStorageInterface;
+use App\Domain\Shared\File;
 use App\Infrastructure\FileStorage\FileReader;
 use RuntimeException;
 
-final class LocalPuzzleFilesReader extends FileReader
+final class LocalPuzzleFilesReader extends FileReader implements PuzzleFileStorageInterface
 {
     private readonly string $configPath;
     private readonly string $todaysDate;
@@ -26,11 +27,6 @@ final class LocalPuzzleFilesReader extends FileReader
         $this->defaultAdvertisementDirectory = $this->rootDirectory . DIRECTORY_SEPARATOR . 'advertisements';
     }
 
-    /**
-     * Get the puzzle advertisement file.
-     * @throws RuntimeException if the configuration file cannot be read or the advertisement file name is not set.
-     * @return File
-     */
     public function getAdvertisementFile(): File
     {
         $config = $this->readConfig();

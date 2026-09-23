@@ -7,6 +7,7 @@ namespace App\Application\Actions\Puzzle;
 use App\Application\Actions\Action;
 use App\Infrastructure\FileStorage\Puzzle\LocalPuzzleFilesReader;
 use Psr\Log\LoggerInterface;
+use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Response;
 
 final class GetPuzzleFileAction extends Action
@@ -24,9 +25,11 @@ final class GetPuzzleFileAction extends Action
 
         $file = $this->fileReader->getPuzzleFile($filename);
 
+		$stream = (new StreamFactory())->createStream($file->contents);
+
         return $this->response
 			->withHeader('Content-Type', $file->mimeType)
 			->withHeader('Content-Length', (string) $file->size)
-			->withBody($file->stream);
+			->withBody($stream);
     }
 }

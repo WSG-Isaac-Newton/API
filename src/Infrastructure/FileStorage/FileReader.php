@@ -1,12 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Infrastructure\FileStorage;
 
-use Slim\Psr7\Stream;
+use App\Domain\Shared\File;
 
-class FileReader 
+class FileReader
 {
     /**
      * Read a file from the given path and return a File object containing the file's stream, MIME type, and size.
@@ -21,21 +19,22 @@ class FileReader
             throw new FileNotReadableException($path);
         }
 
-        $handle = fopen($path, 'rb');
-        if ($handle === false) {
-            throw new FileNotReadableException($path);
-        }
-
         $finfo = new \finfo(FILEINFO_MIME_TYPE);
         $mimeType = $finfo->file($path);
         if ($mimeType === false) {
             throw new UnknownMimeTypeException($path);
         }
 
+        $contents = file_get_contents($path);
+        if ($contents === false) {
+            throw new FileNotReadableException($path);
+        }
+
         return new File(
-            stream: new Stream($handle),
+            filename: basename($path),
             mimeType: $mimeType,
-            size: filesize($path)
+            size: filesize($path),
+            contents: $contents,
         );
     }
 }

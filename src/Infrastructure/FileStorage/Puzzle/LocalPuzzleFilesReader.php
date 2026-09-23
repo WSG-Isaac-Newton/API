@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Infrastructure\FileStorage\Puzzle;
 
 use App\Domain\Puzzle\PuzzleFileStorageInterface;
@@ -11,6 +9,30 @@ use RuntimeException;
 
 final class LocalPuzzleFilesReader extends FileReader implements PuzzleFileStorageInterface
 {
+    private const IGNORED_NAMES = [
+        '.',
+        '..',
+        '@eaDir',
+        '@tmp',
+        '@sharebin',
+        '.SynologyWorkingDirectory',
+        '#recycle',
+        '#snapshot',
+        '.Spotlight-V100',
+        '.Trashes',
+        '.fseventsd',
+        '.DocumentRevisions-V100',
+        '.TemporaryItems',
+        '__MACOSX',
+        '$RECYCLE.BIN',
+        'Thumbs.db',
+        'ehthumbs.db',
+        'Desktop.ini',
+        '.DS_Store',
+        '.AppleDouble',
+        '.LSOverride',
+    ];
+
     private readonly string $configPath;
     private readonly string $todaysDate;
     private readonly string $todaysPuzzleDirectory;
@@ -53,7 +75,7 @@ final class LocalPuzzleFilesReader extends FileReader implements PuzzleFileStora
 
         $files = scandir($this->todaysPuzzleDirectory);
 
-        return array_values(array_filter($files, fn($file) => !in_array($file, ['.', '..'])));
+        return array_values(array_filter($files, fn($file) => !in_array($file, self::IGNORED_NAMES)));
     }
 
     #[\Override]
@@ -90,7 +112,7 @@ final class LocalPuzzleFilesReader extends FileReader implements PuzzleFileStora
             }
 
             $isEmpty = function ($directoryPath) {
-                $content = array_diff(scandir($directoryPath), array('.', '..', '@eaDir', 'Thumbs.db'));
+                $content = array_diff(scandir($directoryPath), self::IGNORED_NAMES);
                 return count($content) == 0;
             };
             if ($isEmpty($directoryPath)) {

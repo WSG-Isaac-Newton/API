@@ -1,28 +1,16 @@
 {
-    "name": "slim/slim-skeleton",
-    "description": "A Slim Framework skeleton application for rapid development",
-    "keywords": [
-        "microframework",
-        "rest",
-        "router",
-        "psr7"
-    ],
-    "homepage": "http://github.com/slimphp/Slim-Skeleton",
-    "license": "MIT",
+    "name": "wsg-isaac-newton/api",
+    "description": "REST API for WSG Isaac Newton services and 3rd party integrations",
+    "license": "GPL-3.0",
     "authors": [
         {
-            "name": "Josh Lockhart",
-            "email": "info@joshlockhart.com",
-            "homepage": "http://www.joshlockhart.com/"
-        },
-        {
-            "name": "Pierre Berube",
-            "email": "pierre@lgse.com",
-            "homepage": "http://www.lgse.com/"
+            "name": "Nathan Emanuel Djojomoenawie",
+            "email": "nathan.emanuel.d@proton.me",
+            "homepage": "https://github.com/NathanEmanuel"
         }
     ],
     "require": {
-        "php": "^7.4 || ^8.0",
+        "php": "^8.4",
         "ext-json": "*",
         "monolog/monolog": "^2.8",
         "php-di/php-di": "^7.1",

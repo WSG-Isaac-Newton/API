@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Poll\Repository;
+namespace App\Infrastructure\Persistence\Poll;
 
 use App\Domain\Poll\Poll;
 use App\Domain\Poll\Option;

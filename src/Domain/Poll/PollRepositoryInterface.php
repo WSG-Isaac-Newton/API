@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Poll;
 
 interface PollRepositoryInterface
@@ -14,10 +16,10 @@ interface PollRepositoryInterface
     public function getAllExpiredPollIds(): array;
 
     public function getPollById(int $pollId): ?Poll;
-    
+
     public function createPoll(Poll $poll): void;
-    
+
     public function updatePoll(Poll $poll): void;
-    
+
     public function deletePoll(int $pollId): void;
 }

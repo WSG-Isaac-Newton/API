@@ -16,7 +16,7 @@ final class Vote
         private readonly int $id,
 
         #[BelongsTo(target: Option::class, innerKey: 'option_id', outerKey: 'id')]
-        private readonly int $option,
+        private readonly Option $option,
 
         #[Column(type: 'integer')]
         private readonly int $userId,
@@ -28,6 +28,11 @@ final class Vote
     public function getId(): int
     {
         return $this->id;
+    }
+
+    public function getOption(): Option
+    {
+        return $this->option;
     }
 
     public function getUserId(): int

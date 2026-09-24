@@ -12,6 +12,9 @@
     "require": {
         "php": "^8.4",
         "ext-json": "*",
+        "cycle/annotated": "^4.6",
+        "cycle/database": "^2.23",
+        "cycle/orm": "^2.18",
         "monolog/monolog": "^2.8",
         "php-di/php-di": "^7.1",
         "slim/psr7": "^1.5",

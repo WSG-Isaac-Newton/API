@@ -5,66 +5,89 @@ declare(strict_types=1);
 namespace App\Infrastructure\Persistence\Poll;
 
 use App\Domain\Poll\Poll;
-use App\Domain\Poll\Option;
+use App\Domain\Poll\PollRepositoryInterface;
+use App\Domain\Poll\VoteRepositoryInterface;
+use Cycle\Database\DatabaseInterface;
+use Cycle\Database\Query\SelectQuery;
+use Cycle\ORM\EntityManager;
+use Cycle\ORM\EntityManagerInterface;
+use Cycle\ORM\ORMInterface;
+use Cycle\ORM\RepositoryInterface;
 use DateTimeImmutable;
-use PDO;
 
-final class PollRepository
+final class PollRepository implements PollRepositoryInterface
 {
+    private readonly SelectQuery $selectFromPolls;
+
+    /** @var \Cycle\ORM\Select\Repository $repository */
+    private readonly RepositoryInterface $repository;
+    
+    private readonly EntityManagerInterface $em;
+    
     public function __construct(
-        private readonly PDO $db
-    ) {}
+        private readonly DatabaseInterface $database,
+        private readonly ORMInterface $orm,
+        private readonly VoteRepositoryInterface $voteRepository,
+    ) {
+        $this->selectFromPolls = $this->database->select()->from('polls');
+        $this->repository = $this->orm->getRepository(Poll::class);
+        $this->em = new EntityManager($this->orm);
+    }
 
-    /**
-     * @return Poll[]
-     */
-    public function findActive(): array
+    #[\Override]
+    public function getAllPollIds(): array
     {
-        // 1. Fetch all active polls (Query 1)
-        $stmt = $this->db->query(
-            "SELECT * FROM polls WHERE published_at <= NOW() AND (expires_at IS NULL OR expires_at >= NOW());"
-        );
-        $pollRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->selectFromPolls->columns('id')->fetchAll();
+    }
 
-        if (empty($pollRows)) {
-            return [];
+    #[\Override]
+    public function getAllActivePollIds(): array
+    {
+        return $this->selectFromPolls
+            ->columns('id')
+            ->where('expires_at', null)
+            ->orWhere('expires_at', '>', new DateTimeImmutable())
+            ->fetchAll();
+    }
+
+    #[\Override]
+    public function getAllExpiredPollIds(): array
+    {
+        return $this->selectFromPolls
+            ->columns('id')
+            ->where('expires_at', '<', new DateTimeImmutable())
+            ->fetchAll();
+    }
+
+    #[\Override]
+    public function getPollById(int $id): ?Poll
+    {
+        $poll = $this->repository->findByPK($id);
+        $poll?->setVoteCounts($this->voteRepository->countByPollId($id));
+        return $poll;
+    }
+
+    #[\Override]
+    public function createPoll(Poll $poll): void
+    {
+        $this->em->persist($poll);
+        $this->em->run();
+    }
+
+    #[\Override]
+    public function updatePoll(Poll $poll): void
+    {
+        $this->em->persist($poll);
+        $this->em->run();
+    }
+
+    #[\Override]
+    public function deletePoll(int $id): void
+    {
+        $poll = $this->getPollById($id);
+        if ($poll !== null) {
+            $this->em->delete($poll);
+            $this->em->run();
         }
-
-        // 2. Extract IDs to fetch all options at once
-        $pollIds = array_column($pollRows, 'poll_id');
-        $placeholders = implode(',', array_fill(0, count($pollIds), '?'));
-
-        // 3. Fetch all options for these specific polls (Query 2)
-        $stmt = $this->db->prepare("SELECT * FROM options WHERE poll_id IN ($placeholders)");
-        $stmt->execute($pollIds);
-        $optionRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // 4. Group the Option objects by poll_id
-        $optionsByPoll = [];
-        foreach ($optionRows as $row) {
-            $pollId = (int) $row['poll_id'];
-            
-            $optionsByPoll[$pollId][] = new Option(
-                id: (int) $row['option_id'],
-                text: $row['text'],
-                voteCount: (int) ($row['vote_count'] ?? 0)
-            );
-        }
-
-        // 5. Assemble and return the final Poll objects
-        $polls = [];
-        foreach ($pollRows as $row) {
-            $pollId = (int) $row['poll_id'];
-            
-            $polls[] = new Poll(
-                id: $pollId,
-                question: $row['question'],
-                options: $optionsByPoll[$pollId] ?? [], // Inject options or empty array
-                publishedAt: $row['published_at'] ? new DateTimeImmutable($row['published_at']) : null,
-                expiresAt: $row['expires_at'] ? new DateTimeImmutable($row['expires_at']) : null
-            );
-        }
-
-        return $polls;
     }
 }

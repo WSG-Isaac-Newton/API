@@ -11,6 +11,7 @@ use App\Application\Actions\Member\ListBirthdaysAction;
 use App\Application\Actions\Puzzle\GetAdvertisementFileAction;
 use App\Application\Actions\Puzzle\GetPuzzleFileAction;
 use App\Application\Actions\Puzzle\ListPuzzlesAction;
+use App\Application\Controllers\PollsController;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
@@ -38,8 +39,15 @@ return function (App $app) {
         });
     })->add("BasicAuth.DirectoryEventConsumer");
 
-    $app->group('/polls', function (RouteGroup $routeGroup) {
-        $routeGroup->get('/active', \App\Application\Actions\Poll\ListActivePollsAction::class);
+    $app->group('/polls', function ($group) {
+        $group->get('', [PollsController::class, 'index']);
+        $group->post('', [PollsController::class, 'store']);
+        $group->get('/{poll_id}', [PollsController::class, 'show']);
+        $group->put('/{poll_id}', [PollsController::class, 'update']);
+        $group->delete('/{poll_id}', [PollsController::class, 'delete']);
+        $group->patch('/{poll_id}/expire', [PollsController::class, 'expire']);
+        // $group->get('/{poll_id}/votes/{member_id}', [VotesController::class, 'show']);
+        // $group->post('/{poll_id}/votes/{member_id}', [VotesController::class, 'store']);
     });
 
     $app->group('/members', function (RouteGroup $routeGroup) {

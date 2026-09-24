@@ -1,12 +1,14 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Domain\Poll;
 
-use JsonSerializable;
+use Cycle\Annotated\Annotation\Column;
+use Cycle\Annotated\Annotation\Entity;
 use DateTimeImmutable;
+use JsonSerializable;
+use Cycle\Annotated\Annotation\Relation\HasMany;
 
+#[Entity(database: 'poll')]
 class Poll implements JsonSerializable
 {
     /**
@@ -17,10 +19,19 @@ class Poll implements JsonSerializable
      * @param DateTimeImmutable|null $expiresAt
      */
     public function __construct(
+        #[Column(type: "primary")]
         private readonly int $id,
+
+        #[Column(type: "string")]
         private readonly string $question,
+
+        #[HasMany(target: Option::class)]
         private readonly array $options,
+        
+        #[Column(type: "datetime")]
         private readonly ?DateTimeImmutable $publishedAt = null,
+        
+        #[Column(type: "datetime", nullable: true)]
         private readonly ?DateTimeImmutable $expiresAt = null
     ) {}
 
@@ -47,6 +58,15 @@ class Poll implements JsonSerializable
     public function getExpiresAt(): ?DateTimeImmutable
     {
         return $this->expiresAt;
+    }
+
+    /** @param array<int|string, int|string> $counts */
+    public function setVoteCounts(array $counts): void
+    {
+        foreach ($this->getOptions() as $option) {
+            $option->setVoteCount((int) ($counts[$option->getId()] ?? 0));
+        }
+
     }
 
     public function jsonSerialize(): array

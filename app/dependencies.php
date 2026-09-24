@@ -9,6 +9,17 @@ use App\Domain\Auth\BasicAuthRepository;
 use App\Domain\Auth\Scope;
 use App\Domain\Puzzle\PuzzleFileStorageInterface;
 use App\Infrastructure\FileStorage\Puzzle\LocalPuzzleFilesReader;
+use Cycle\Annotated;
+use Cycle\Annotated\Locator\TokenizerEmbeddingLocator;
+use Cycle\Annotated\Locator\TokenizerEntityLocator;
+use Cycle\Database\Config\DatabaseConfig;
+use Cycle\Database\Config\MySQL\TcpConnectionConfig;
+use Cycle\Database\Config\MySQLDriverConfig;
+use Cycle\Database\DatabaseManager;
+use Cycle\Database\DatabaseProviderInterface;
+use Cycle\ORM;
+use Cycle\ORM\ORMInterface;
+use Cycle\Schema;
 use DI\ContainerBuilder;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -17,6 +28,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Slim\Psr7\Factory\ResponseFactory;
+use Spiral\Tokenizer\ClassLocator;
 
 return function (ContainerBuilder $containerBuilder) {
     $containerBuilder->addDefinitions([
@@ -42,15 +54,6 @@ return function (ContainerBuilder $containerBuilder) {
             $pass   = $_ENV['DB_PASSWORD'];
 
             return new \PDO("$driver:host=$host;dbname=$db", $user, $pass);
-        },
-        'db.poll' => function (\Psr\Container\ContainerInterface $c) {
-            $config = $c->get(SettingsInterface::class)->get('db')['poll'];
-            $dsn = "{$config['driver']}:host={$config['host']};dbname={$config['database']};charset=utf8mb4";
-
-            return new \PDO($dsn, $config['username'], $config['password'], [
-                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-            ]);
         },
         'db.birthday' => function (\Psr\Container\ContainerInterface $c) {
             $config = $c->get(SettingsInterface::class)->get('db')['birthday'];
@@ -105,6 +108,81 @@ return function (ContainerBuilder $containerBuilder) {
         PuzzleFileStorageSynchronizer::class => function (ContainerInterface $c) {
             return new PuzzleFileStorageSynchronizer(
                 storage: $c->get(PuzzleFileStorageInterface::class),
+            );
+        },
+
+
+        /* ORM */
+
+        DatabaseProviderInterface::class => function (ContainerInterface $c) {
+            $settings = $c->get(SettingsInterface::class);
+
+            return new DatabaseManager(
+                new DatabaseConfig([
+                    'default' => 'default',
+                    'databases' => [
+                        'default' => ['connection' => 'default'],
+                        'poll' => ['connection' => 'poll'],
+                    ],
+                    'connections' => [
+                        'default' => new MySQLDriverConfig(
+                            connection: new TcpConnectionConfig(
+                                database: $settings->get('db')['default']['database'],
+                                host: $settings->get('db')['default']['host'],
+                                port: (int) ($_ENV['DB_PORT'] ?? 3306),
+                                user: $settings->get('db')['default']['username'],
+                                password: $settings->get('db')['default']['password'],
+                            ),
+                            queryCache: true,
+                        ),
+                        'poll' => new MySQLDriverConfig(
+                            connection: new TcpConnectionConfig(
+                                database: $settings->get('db')['poll']['database'],
+                                host: $settings->get('db')['poll']['host'],
+                                port: (int) ($_ENV['DB_PORT'] ?? 3306),
+                                user: $settings->get('db')['poll']['username'],
+                                password: $settings->get('db')['poll']['password'],
+                            ),
+                            queryCache: true,
+                        ),
+                    ]
+                ])
+            );
+        },
+
+        "db.poll" => function (ContainerInterface $c)
+        {
+            $dbal = $c->get(DatabaseProviderInterface::class);
+            return $dbal->database('poll');
+        },
+        
+        ORMInterface::class => function (ContainerInterface $c)
+        {
+            $dbal = $c->get(DatabaseProviderInterface::class);
+            $classLocator = new ClassLocator((new \Symfony\Component\Finder\Finder())->files()->in([dirname(__DIR__) . '/src/Domain']));
+            $embeddingLocator = new TokenizerEmbeddingLocator($classLocator);
+            $entityLocator = new TokenizerEntityLocator($classLocator);
+            
+            $schema = (new Schema\Compiler())->compile(new Schema\Registry($dbal), [
+                new Schema\Generator\ResetTables(),             // Reconfigure table schemas (deletes columns if necessary)
+                new Annotated\Embeddings($embeddingLocator),    // Recognize embeddable entities
+                new Annotated\Entities($entityLocator),         // Identify attributed entities
+                new Annotated\TableInheritance(),               // Setup Single Table or Joined Table Inheritance
+                new Annotated\MergeColumns(),                   // Integrate table #[Column] attributes
+                new Schema\Generator\GenerateRelations(),       // Define entity relationships
+                new Schema\Generator\GenerateModifiers(),       // Apply schema modifications
+                new Schema\Generator\ValidateEntities(),        // Ensure entity schemas adhere to conventions
+                new Schema\Generator\RenderTables(),            // Create table schemas
+                new Schema\Generator\RenderRelations(),         // Establish keys and indexes for relationships
+                new Schema\Generator\RenderModifiers(),         // Implement schema modifications
+                new Schema\Generator\ForeignKeys(),             // Define foreign key constraints
+                new Annotated\MergeIndexes(),                   // Merge table index attributes
+                new Schema\Generator\GenerateTypecast(),        // Typecast non-string columns
+            ]);
+
+            return new ORM\ORM(
+                new ORM\Factory($dbal),
+                new ORM\Schema($schema),
             );
         },
 

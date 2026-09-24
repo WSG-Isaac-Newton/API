@@ -1,0 +1,185 @@
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: W.S.G. Isaac Newton API
+  description: W.S.G. Isaac Newton API
+paths:
+  /polls:
+    get:
+      summary: List poll IDs
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - active
+              - expired
+          required: false
+    post:
+      summary: Create poll
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Poll"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePoll"
+            examples:
+              example1:
+                value:
+                  question: This is the question
+                  options:
+                    - This is option A
+                    - This is option B
+        required: true
+  '/polls/{id}':
+    parameters:
+      - $ref: '#/components/parameters/PollId'
+    get:
+      summary: Get poll
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Poll"
+    put:
+      summary: Edit poll
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Poll"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePoll"
+        required: true
+    delete:
+      summary: Delete poll
+      responses:
+        '204':
+          description: ''
+  '/polls/{id}/expire':
+    parameters:
+      - $ref: '#/components/parameters/PollId'
+    patch:
+      summary: Expire poll
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Poll"
+  '/polls/{id}/votes':
+    parameters:
+      - $ref: '#/components/parameters/PollId'
+    get:
+      summary: Get vote
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vote"
+    post:
+      summary: Submit vote
+      responses:
+        "201":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Poll"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Vote"
+      parameters:
+        - $ref: "#/components/parameters/PollId"
+components:
+  schemas:
+    Poll:
+      type: object
+      required:
+        - question
+        - options
+      properties:
+        question:
+          type: string
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/Option'
+    Option:
+      type: object
+      required:
+        - id
+        - text
+        - votes
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        votes:
+          type: integer
+    CreatePoll:
+      type: object
+      required:
+        - question
+        - options
+      properties:
+        question:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+          minItems: 2
+    Vote:
+      type: object
+      required:
+        - option_id
+        - user_id
+      properties:
+        option_id:
+          type: integer
+        user_id:
+          type: string
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+  parameters:
+    PollId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+security:
+  - ApiKey: []

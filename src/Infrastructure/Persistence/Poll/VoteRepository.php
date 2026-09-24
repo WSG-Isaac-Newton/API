@@ -10,6 +10,11 @@ use Cycle\Database\Injection\Fragment;
 
 final class VoteRepository implements VoteRepositoryInterface
 {
+    private const TABLE = 'votes';
+    private const OPTION_ID_COLUMN = 'option_id';
+    private const POLL_ID_COLUMN = 'poll_id';
+    private const COUNT_ALIAS = 'count';
+
     public function __construct(
         private readonly DatabaseInterface $database,
     ) {}
@@ -18,15 +23,18 @@ final class VoteRepository implements VoteRepositoryInterface
     {
         $rows = $this->database
             ->select()
-            ->from('votes')
-            ->columns('option_id', new Fragment('COUNT(*) AS count'))
-            ->where('poll_id', $pollId)
-            ->groupBy('option_id')
+            ->from(self::TABLE)
+            ->columns(
+                self::OPTION_ID_COLUMN,
+                new Fragment('COUNT(*) AS ' . self::COUNT_ALIAS),
+            )
+            ->where(self::POLL_ID_COLUMN, $pollId)
+            ->groupBy(self::OPTION_ID_COLUMN)
             ->fetchAll();
 
         $counts = [];
         foreach ($rows as $row) {
-            $counts[(int) $row['option_id']] = (int) $row['count'];
+            $counts[(int) $row[self::OPTION_ID_COLUMN]] = (int) $row[self::COUNT_ALIAS];
         }
 
         return $counts;

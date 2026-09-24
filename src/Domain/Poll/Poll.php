@@ -1,22 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Poll;
 
 use Cycle\Annotated\Annotation\Column;
 use Cycle\Annotated\Annotation\Entity;
-use DateTimeImmutable;
-use JsonSerializable;
 use Cycle\Annotated\Annotation\Relation\HasMany;
 
 #[Entity(database: 'poll')]
-class Poll implements JsonSerializable
+final class Poll implements \JsonSerializable
 {
     /**
      * @param int $id
      * @param string $question
      * @param array<Option> $options
-     * @param DateTimeImmutable|null $publishedAt
-     * @param DateTimeImmutable|null $expiresAt
+     * @param \DateTimeImmutable|null $publishedAt
+     * @param \DateTimeImmutable|null $expiresAt
      */
     public function __construct(
         #[Column(type: "primary")]
@@ -27,12 +27,12 @@ class Poll implements JsonSerializable
 
         #[HasMany(target: Option::class)]
         private readonly array $options,
-        
+
         #[Column(type: "datetime")]
-        private readonly ?DateTimeImmutable $publishedAt = null,
-        
+        private readonly ?\DateTimeImmutable $publishedAt = null,
+
         #[Column(type: "datetime", nullable: true)]
-        private readonly ?DateTimeImmutable $expiresAt = null
+        private readonly ?\DateTimeImmutable $expiresAt = null
     ) {}
 
     public function getId(): int
@@ -50,12 +50,12 @@ class Poll implements JsonSerializable
         return $this->options;
     }
 
-    public function getPublishedAt(): ?DateTimeImmutable
+    public function getPublishedAt(): ?\DateTimeImmutable
     {
         return $this->publishedAt;
     }
 
-    public function getExpiresAt(): ?DateTimeImmutable
+    public function getExpiresAt(): ?\DateTimeImmutable
     {
         return $this->expiresAt;
     }
@@ -66,7 +66,6 @@ class Poll implements JsonSerializable
         foreach ($this->getOptions() as $option) {
             $option->setVoteCount((int) ($counts[$option->getId()] ?? 0));
         }
-
     }
 
     public function jsonSerialize(): array

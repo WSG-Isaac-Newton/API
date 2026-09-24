@@ -1,17 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Poll;
 
 use Cycle\Annotated\Annotation\Column;
 use Cycle\Annotated\Annotation\Entity;
 use Cycle\Annotated\Annotation\Relation\BelongsTo;
-use JsonSerializable;
 
 #[Entity(database: 'poll')]
-class Option implements JsonSerializable
+final class Option implements \JsonSerializable
 {
     private int $voteCount = 0;
-    
+
     public function __construct(
         #[Column(type: "primary")]
         private readonly int $id,
@@ -33,6 +34,11 @@ class Option implements JsonSerializable
         return $this->text;
     }
 
+    public function getPoll(): Poll
+    {
+        return $this->poll;
+    }
+
     public function getVoteCount(): int
     {
         return $this->voteCount;
@@ -52,4 +58,3 @@ class Option implements JsonSerializable
         ];
     }
 }
- 

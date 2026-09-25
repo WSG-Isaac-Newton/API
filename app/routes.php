@@ -18,6 +18,12 @@ use Slim\App;
 use Slim\Interfaces\RouteCollectorProxyInterface as RouteGroup;
 
 return function (App $app) {
+    $app->get('/openapi.yaml', function (Request $request, Response $response): Response {
+        $response->getBody()->write((string) file_get_contents(dirname(__DIR__) . '/docs/openapi.yaml'));
+
+        return $response->withHeader('Content-Type', 'application/yaml');
+    });
+
     $app->options('/{routes:.*}', function (Request $request, Response $response) {
         // CORS Pre-Flight OPTIONS Request Handler
         return $response;

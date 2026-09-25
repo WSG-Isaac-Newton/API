@@ -3,6 +3,9 @@ info:
   version: 1.0.0
   title: W.S.G. Isaac Newton API
   description: W.S.G. Isaac Newton API
+servers:
+  - url: http://localhost:8080
+    description: Local development server
 paths:
   /polls:
     get:

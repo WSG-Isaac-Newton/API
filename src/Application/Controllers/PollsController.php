@@ -78,7 +78,9 @@ final class PollsController extends Controller
      */
     public function delete(Request $request, Response $response, array $args): Response
     {
-        return $this->respondNotImplemented($response);
+        $this->polls->deletePoll((int) $args['poll_id']);
+
+        return $response->withStatus(204);
     }
 
     /**

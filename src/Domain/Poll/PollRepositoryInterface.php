@@ -17,9 +17,9 @@ interface PollRepositoryInterface
 
     public function getPollById(int $pollId): ?Poll;
 
-    public function createPoll(Poll $poll): void;
+    public function createPoll(Poll $poll): Poll;
 
-    public function updatePoll(Poll $poll): void;
+    public function updatePoll(Poll $poll): Poll;
 
     public function deletePoll(int $pollId): void;
 }

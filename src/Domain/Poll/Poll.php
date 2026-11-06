@@ -9,7 +9,7 @@ use Cycle\Annotated\Annotation\Entity;
 use Cycle\Annotated\Annotation\Relation\HasMany;
 
 #[Entity(database: 'poll')]
-final class Poll implements \JsonSerializable
+class Poll implements \JsonSerializable
 {
     /**
      * @param int $id
@@ -18,27 +18,22 @@ final class Poll implements \JsonSerializable
      * @param \DateTimeImmutable|null $publishedAt
      * @param \DateTimeImmutable|null $expiresAt
      */
-    public function __construct(
-        #[Column(type: "primary")]
-        private readonly int $id,
-
+    private function __construct(
         #[Column(type: "string")]
         private readonly string $question,
 
-        #[HasMany(target: Option::class)]
+        #[HasMany(target: Option::class, innerKey: 'id', outerKey: 'pollId')]
         private readonly array $options,
 
         #[Column(type: "datetime")]
-        private readonly ?\DateTimeImmutable $publishedAt = null,
-
+        private readonly \DateTimeImmutable $publishedAt,
+        
         #[Column(type: "datetime", nullable: true)]
-        private readonly ?\DateTimeImmutable $expiresAt = null
+        private readonly ?\DateTimeImmutable $expiresAt = null,
+        
+        #[Column(type: "primary")]
+        private ?int $id = null,
     ) {}
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
 
     public function getQuestion(): string
     {
@@ -60,6 +55,11 @@ final class Poll implements \JsonSerializable
         return $this->expiresAt;
     }
 
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
     /** @param array<int|string, int|string> $counts */
     public function setVoteCounts(array $counts): void
     {
@@ -77,5 +77,33 @@ final class Poll implements \JsonSerializable
             'expires_at'   => $this->expiresAt?->format('Y-m-d H:i:s'),
             'options'      => $this->options,
         ];
+    }
+
+    public static function create(
+        string $question,
+        array $optionTexts,
+        ?\DateTimeImmutable $publishedAt = null,
+        ?\DateTimeImmutable $expiresAt = null,
+    ): self
+    {
+        if ($question === '') {
+            throw new \InvalidArgumentException('Question is required');
+        }
+
+        if (count($optionTexts) < 2) {
+            throw new \InvalidArgumentException('At least 2 options required');
+        }
+
+        $options = [];
+        foreach ($optionTexts as $optionText) {
+            if ($optionText === '') {
+                throw new \InvalidArgumentException('Option text is required');
+            }
+            $options[] = new Option(text: $optionText);
+        }
+
+        $publishedAt ??= new \DateTimeImmutable();
+
+        return new self($question, $options, $publishedAt, $expiresAt);
     }
 }

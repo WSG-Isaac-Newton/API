@@ -2,6 +2,7 @@
 
 namespace App\Application\Controllers;
 
+use App\Domain\Poll\Poll;
 use App\Domain\Poll\PollRepositoryInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -40,7 +41,18 @@ final class PollsController extends Controller
      */
     public function store(Request $request, Response $response): Response
     {
-        return $this->respondNotImplemented($response);
+        $data = (array) $request->getParsedBody();
+
+        $question = $data['question'] ?? '';
+        $optionTexts = $data['options'] ?? [];
+        $publishedAt = !empty($data['published_at']) ? new \DateTimeImmutable($data['published_at']) : null;
+        $expiresAt = !empty($data['expires_at']) ? new \DateTimeImmutable($data['expires_at']) : null;
+
+        $poll = Poll::create($question, $optionTexts, $publishedAt, $expiresAt);
+
+        $poll = $this->polls->createPoll($poll);
+
+        return $this->respondWithJson($response, $poll, 201);
     }
 
     /**

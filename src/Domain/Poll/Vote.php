@@ -15,6 +15,9 @@ final class Vote
         #[Column(type: 'primary')]
         private readonly int $id,
 
+        #[BelongsTo(target: Poll::class, innerKey: 'poll_id', outerKey: 'id')]
+        private readonly Poll $poll,
+
         #[BelongsTo(target: Option::class, innerKey: 'option_id', outerKey: 'id')]
         private readonly Option $option,
 

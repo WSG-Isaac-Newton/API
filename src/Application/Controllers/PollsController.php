@@ -70,7 +70,17 @@ final class PollsController extends Controller
      */
     public function update(Request $request, Response $response, array $args): Response
     {
-        return $this->respondNotImplemented($response);
+        $data = (array) $request->getParsedBody();
+
+        $poll = $this->polls->getPollById((int) $args['poll_id']);
+
+        if (!empty($data['question'])) $poll->setQuestion($data['question']);
+        if (!empty($data['published_at'])) $poll->setPublishedAt(new \DateTimeImmutable($data['published_at']));
+        if (!empty($data['expires_at'])) $poll->setExpiresAt(new \DateTimeImmutable($data['expires_at']));
+
+        $poll = $this->polls->updatePoll($poll);
+
+        return $this->respondWithJson($response, $poll, 200);
     }
 
     /**

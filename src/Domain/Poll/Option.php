@@ -6,22 +6,21 @@ namespace App\Domain\Poll;
 
 use Cycle\Annotated\Annotation\Column;
 use Cycle\Annotated\Annotation\Entity;
-use Cycle\Annotated\Annotation\Relation\BelongsTo;
 
 #[Entity(database: 'poll')]
-final class Option implements \JsonSerializable
+class Option implements \JsonSerializable
 {
     private int $voteCount = 0;
 
     public function __construct(
-        #[Column(type: "primary")]
-        private readonly int $id,
-
         #[Column(type: "string")]
         private readonly string $text,
 
-        #[BelongsTo(target: Poll::class, innerKey: 'poll_id', outerKey: 'id')]
-        private readonly Poll $poll,
+        #[Column(type: "primary")]
+        private ?int $id = null,
+        
+        #[Column(type: "integer", name: "poll_id")]
+        private ?int $pollId = null,
     ) {}
 
     public function getId(): int
@@ -32,11 +31,6 @@ final class Option implements \JsonSerializable
     public function getText(): string
     {
         return $this->text;
-    }
-
-    public function getPoll(): Poll
-    {
-        return $this->poll;
     }
 
     public function getVoteCount(): int

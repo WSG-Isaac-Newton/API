@@ -68,17 +68,25 @@ final class PollRepository implements PollRepositoryInterface
     }
 
     #[\Override]
-    public function createPoll(Poll $poll): void
+    public function createPoll(Poll $poll): Poll
     {
         $this->em->persist($poll);
         $this->em->run();
+
+        $poll = $this->getPollById($poll->getId());
+
+        return $poll;
     }
 
     #[\Override]
-    public function updatePoll(Poll $poll): void
+    public function updatePoll(Poll $poll): Poll
     {
         $this->em->persist($poll);
         $this->em->run();
+
+        $poll = $this->getPollById($poll->getId());
+
+        return $poll;
     }
 
     #[\Override]

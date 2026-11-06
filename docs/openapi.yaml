@@ -175,6 +175,17 @@ components:
         expires_at:
           type: string
           format: date-time
+    UpdatePoll:
+      type: object
+      properties:
+        question:
+          type: string
+        published_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
     Vote:
       type: object
       required:

@@ -20,16 +20,16 @@ class Poll implements \JsonSerializable
      */
     private function __construct(
         #[Column(type: "string")]
-        private readonly string $question,
+        private string $question,
 
         #[HasMany(target: Option::class, innerKey: 'id', outerKey: 'pollId')]
-        private readonly array $options,
+        private array $options,
 
         #[Column(type: "datetime")]
-        private readonly \DateTimeImmutable $publishedAt,
+        private \DateTimeImmutable $publishedAt,
         
         #[Column(type: "datetime", nullable: true)]
-        private readonly ?\DateTimeImmutable $expiresAt = null,
+        private ?\DateTimeImmutable $expiresAt = null,
         
         #[Column(type: "primary")]
         private ?int $id = null,
@@ -58,6 +58,21 @@ class Poll implements \JsonSerializable
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setQuestion(string $question): void
+    {
+        $this->question = $question;
+    }
+
+    public function setPublishedAt(\DateTimeImmutable $publishedAt): void
+    {
+        $this->publishedAt = $publishedAt;
+    }
+
+    public function setExpiresAt(?\DateTimeImmutable $expiresAt): void
+    {
+        $this->expiresAt = $expiresAt;
     }
 
     /** @param array<int|string, int|string> $counts */

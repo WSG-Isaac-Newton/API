@@ -75,7 +75,12 @@ final class LocalPuzzleFilesReader extends FileReader implements PuzzleFileStora
 
         $files = scandir($this->todaysPuzzleDirectory);
 
-        return array_values(array_filter($files, fn($file) => !in_array($file, self::IGNORED_NAMES)));
+        return array_values(array_filter(
+            $files,
+            fn($file) =>
+                !in_array($file, self::IGNORED_NAMES) &&
+                str_starts_with($this->getPuzzleFile($file)->mimeType, 'image/')
+        ));
     }
 
     #[\Override]

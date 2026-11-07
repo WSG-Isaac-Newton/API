@@ -131,9 +131,14 @@ paths:
           content:
             application/json:
               schema:
-                  type: array
-                  items:
-                    type: string
+                type: object
+                required:
+                  - fileNames
+                properties:
+                  fileNames:
+                    type: array
+                    items:
+                      type: string
   /puzzles/advertisement:
     get:
       summary: Get puzzle advertisement

@@ -21,9 +21,9 @@ final class PuzzlesController extends Controller
      */
     public function index(Request $request, Response $response): Response
     {
-        $data = $this->puzzles->getPuzzleFileNames();
+        $fileNames = $this->puzzles->getPuzzleFileNames();
 
-        return $this->respondWithJson($response, $data);
+        return $this->respondWithJson($response, ['fileNames' => $fileNames]);
     }
 
     /**

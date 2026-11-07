@@ -8,10 +8,8 @@ use App\Application\Actions\Directory\MarkEventStatusAction;
 use App\Application\Actions\Directory\PopEventQueueAction;
 use App\Application\Actions\Member\CreateBirthdayAction;
 use App\Application\Actions\Member\ListBirthdaysAction;
-use App\Application\Actions\Puzzle\GetAdvertisementFileAction;
-use App\Application\Actions\Puzzle\GetPuzzleFileAction;
-use App\Application\Actions\Puzzle\ListPuzzlesAction;
 use App\Application\Controllers\PollsController;
+use App\Application\Controllers\PuzzlesController;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
@@ -61,9 +59,8 @@ return function (App $app) {
     });
 
     $app->group('/puzzles', function (RouteGroup $routeGroup) {
-        $routeGroup->get('', ListPuzzlesAction::class);
-        $routeGroup->get('/{filename}', GetPuzzleFileAction::class);
-        });
-
-    $app->get('/puzzles-advertisement', GetAdvertisementFileAction::class);
+        $routeGroup->get('', [PuzzlesController::class, 'index']);
+        $routeGroup->get('/advertisement', [PuzzlesController::class, 'advertisement']);
+        $routeGroup->get('/{fileName}', [PuzzlesController::class, 'show']);
+    });
 };

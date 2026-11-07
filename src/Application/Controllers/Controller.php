@@ -22,6 +22,11 @@ abstract class Controller
             ->withStatus($status);
     }
 
+    protected function respondNoContent(Response $response): Response
+    {
+        return $response->withStatus(204);
+    }
+
     /**
      * @param string[] $errors
      */

@@ -121,7 +121,7 @@ final class PollsController extends Controller
     {
         $this->polls->deletePoll((int) $args['poll_id']);
 
-        return $response->withStatus(204);
+        return $this->respondNoContent($response);
     }
 
     /**

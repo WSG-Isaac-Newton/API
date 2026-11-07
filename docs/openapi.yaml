@@ -122,6 +122,42 @@ paths:
               $ref: "#/components/schemas/Vote"
       parameters:
         - $ref: "#/components/parameters/PollId"
+  /puzzles:
+    get:
+      summary: List puzzle file names
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                  type: array
+                  items:
+                    type: string
+  /puzzles/advertisement:
+    get:
+      summary: Get puzzle advertisement
+      responses:
+        '200':
+          description: ''
+          content:
+            image/*:
+              schema:
+                type: 'string'
+                format: 'binary'
+  /puzzles/{fileName}:
+    parameters:
+      - $ref: '#/components/parameters/PuzzleFileName'
+    get:
+      summary: Get puzzle file
+      responses:
+        '200':
+          description: ''
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
 components:
   schemas:
     Poll:
@@ -208,5 +244,11 @@ components:
       required: true
       schema:
         type: integer
+    PuzzleFileName:
+      name: fileName
+      in: path
+      required: true
+      schema:
+        type: string
 security:
   - ApiKey: []

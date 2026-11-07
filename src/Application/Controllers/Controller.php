@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Application\Controllers;
 
+use App\Domain\Shared\File;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Log\LoggerInterface;
+use Slim\Psr7\Factory\StreamFactory;
 
 abstract class Controller
 {
@@ -20,6 +22,16 @@ abstract class Controller
         return $response
             ->withHeader('Content-Type', 'application/json')
             ->withStatus($status);
+    }
+
+    protected function respondWithFile(Response $response, File $file): Response
+    {
+        $stream = (new StreamFactory)->createStream($file->contents);
+
+		return $response
+			->withHeader('Content-Type', $file->mimeType)
+			->withHeader('Content-Length', (string) $file->size)
+			->withBody($stream);
     }
 
     protected function respondNoContent(Response $response): Response

@@ -7,6 +7,8 @@ use App\Domain\Poll\PollRepositoryInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Log\LoggerInterface;
+use Respect\Validation\Exceptions\NestedValidationException;
+use Respect\Validation\Validator as v;
 
 final class PollsController extends Controller
 {
@@ -66,17 +68,46 @@ final class PollsController extends Controller
     }
 
     /**
-     * PUT /polls/{poll_id}
+     * PATCH /polls/{poll_id}
      */
     public function update(Request $request, Response $response, array $args): Response
     {
+        $validator = v::key(
+            'question',
+            v::stringType(),
+            false
+        )->key(
+            'published_at',
+            v::dateTime(\DateTime::RFC3339),
+            false
+        )->key(
+            'expires_at',
+            v::optional(
+                v::dateTime(\DateTime::RFC3339)
+            ),
+            false
+        );
+
         $data = (array) $request->getParsedBody();
+
+        try {
+            $validator->assert($data);
+        } catch (NestedValidationException $e) {
+            $errors = $e->getMessages();
+            return $this->respondBadRequest($response, $errors);
+        }
 
         $poll = $this->polls->getPollById((int) $args['poll_id']);
 
-        if (!empty($data['question'])) $poll->setQuestion($data['question']);
-        if (!empty($data['published_at'])) $poll->setPublishedAt(new \DateTimeImmutable($data['published_at']));
-        if (!empty($data['expires_at'])) $poll->setExpiresAt(new \DateTimeImmutable($data['expires_at']));
+        if (array_key_exists('question', $data)) $poll->setQuestion($data['question']);
+
+        if (array_key_exists('published_at',$data)) $poll->setPublishedAt(new \DateTimeImmutable($data['published_at']));
+
+        if (array_key_exists('expires_at', $data)) {
+            is_null($data['expires_at'])
+            ? $poll->setExpiresAt(null)
+            : $poll->setExpiresAt(new \DateTimeImmutable($data['expires_at']));
+        }
 
         $poll = $this->polls->updatePoll($poll);
 

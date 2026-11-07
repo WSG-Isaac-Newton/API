@@ -15,11 +15,11 @@ interface PollRepositoryInterface
     /** @return int[] */
     public function getAllExpiredPollIds(): array;
 
-    public function getPoll(int $pollId): ?Poll;
+    public function getPoll(int $id): ?Poll;
 
     public function createPoll(Poll $poll): Poll;
 
     public function updatePoll(Poll $poll): Poll;
 
-    public function deletePoll(int $pollId): void;
+    public function deletePoll(int $id): void;
 }

@@ -93,8 +93,8 @@ class Poll implements \JsonSerializable
         return [
             'id'           => $this->id,
             'question'     => $this->question,
-            'published_at' => $this->publishedAt->format('Y-m-d H:i:s'),
-            'expires_at'   => $this->expiresAt?->format('Y-m-d H:i:s'),
+            'published_at' => $this->publishedAt->format(\DateTimeInterface::ATOM),
+            'expires_at'   => $this->expiresAt?->format(\DateTimeInterface::ATOM),
             'options'      => $this->options,
         ];
     }

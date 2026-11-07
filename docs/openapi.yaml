@@ -62,15 +62,15 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Poll"
-    put:
-      summary: Edit poll
+    patch:
+      summary: Update poll
       responses:
         '200':
           description: ''
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Poll"
+                $ref: "#/components/schemas/UpdatePoll"
       requestBody:
         content:
           application/json:
@@ -184,7 +184,7 @@ components:
           type: string
           format: date-time
         expires_at:
-          type: string
+          type: [string, "null"]
           format: date-time
     Vote:
       type: object

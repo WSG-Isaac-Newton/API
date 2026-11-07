@@ -22,6 +22,18 @@ abstract class Controller
             ->withStatus($status);
     }
 
+    /**
+     * @param string[] $errors
+     */
+    protected function respondBadRequest(Response $response, array $errors): Response
+    {
+        $response->getBody()->write(json_encode(['errors' => $errors], JSON_THROW_ON_ERROR));
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(400);
+    }
+
     protected function respondNotImplemented(Response $response): Response
     {
         return $response->withStatus(501);

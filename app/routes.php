@@ -49,7 +49,7 @@ return function (App $app) {
         $group->get('', [PollsController::class, 'index']);
         $group->post('', [PollsController::class, 'store']);
         $group->get('/{poll_id}', [PollsController::class, 'show']);
-        $group->put('/{poll_id}', [PollsController::class, 'update']);
+        $group->patch('/{poll_id}', [PollsController::class, 'update']);
         $group->delete('/{poll_id}', [PollsController::class, 'delete']);
         $group->patch('/{poll_id}/expire', [PollsController::class, 'expire']);
         // $group->get('/{poll_id}/votes/{member_id}', [VotesController::class, 'show']);

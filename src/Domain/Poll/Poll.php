@@ -15,8 +15,8 @@ class Poll implements \JsonSerializable
      * @param int $id
      * @param string $question
      * @param array<Option> $options
-     * @param \DateTimeImmutable|null $publishedAt
-     * @param \DateTimeImmutable|null $expiresAt
+     * @param \DateTimeImmutable $publishedAt
+     * @param ?\DateTimeImmutable $expiresAt
      */
     private function __construct(
         #[Column(type: "string")]
@@ -45,7 +45,7 @@ class Poll implements \JsonSerializable
         return $this->options;
     }
 
-    public function getPublishedAt(): ?\DateTimeImmutable
+    public function getPublishedAt(): \DateTimeImmutable
     {
         return $this->publishedAt;
     }
@@ -88,7 +88,7 @@ class Poll implements \JsonSerializable
         return [
             'id'           => $this->id,
             'question'     => $this->question,
-            'published_at' => $this->publishedAt?->format('Y-m-d H:i:s'),
+            'published_at' => $this->publishedAt->format('Y-m-d H:i:s'),
             'expires_at'   => $this->expiresAt?->format('Y-m-d H:i:s'),
             'options'      => $this->options,
         ];
@@ -101,10 +101,6 @@ class Poll implements \JsonSerializable
         ?\DateTimeImmutable $expiresAt = null,
     ): self
     {
-        if ($question === '') {
-            throw new \InvalidArgumentException('Question is required');
-        }
-
         if (count($optionTexts) < 2) {
             throw new \InvalidArgumentException('At least 2 options required');
         }

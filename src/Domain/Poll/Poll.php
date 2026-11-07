@@ -75,6 +75,11 @@ class Poll implements \JsonSerializable
         $this->expiresAt = $expiresAt;
     }
 
+    public function expire(): void
+    {
+        $this->setExpiresAt(new \DateTimeImmutable);
+    }
+
     /** @param array<int|string, int|string> $counts */
     public function setVoteCounts(array $counts): void
     {

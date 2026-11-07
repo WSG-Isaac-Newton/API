@@ -129,6 +129,10 @@ final class PollsController extends Controller
      */
     public function expire(Request $request, Response $response, array $args): Response
     {
-        return $this->respondNotImplemented($response);
+        $poll = $this->polls->getPollById((int) $args['poll_id']);
+
+        $poll->expire();
+
+        return $this->respondWithJson($response, $poll, 200);
     }
 }

@@ -60,7 +60,7 @@ final class PollRepository implements PollRepositoryInterface
     }
 
     #[\Override]
-    public function getPollById(int $id): ?Poll
+    public function getPoll(int $id): ?Poll
     {
         $poll = $this->repository->findByPK($id);
         $poll?->setVoteCounts($this->voteRepository->countByPollId($id));
@@ -73,7 +73,7 @@ final class PollRepository implements PollRepositoryInterface
         $this->em->persist($poll);
         $this->em->run();
 
-        $poll = $this->getPollById($poll->getId());
+        $poll = $this->getPoll($poll->getId());
 
         return $poll;
     }
@@ -84,7 +84,7 @@ final class PollRepository implements PollRepositoryInterface
         $this->em->persist($poll);
         $this->em->run();
 
-        $poll = $this->getPollById($poll->getId());
+        $poll = $this->getPoll($poll->getId());
 
         return $poll;
     }
@@ -92,7 +92,7 @@ final class PollRepository implements PollRepositoryInterface
     #[\Override]
     public function deletePoll(int $id): void
     {
-        $poll = $this->getPollById($id);
+        $poll = $this->getPoll($id);
         if ($poll !== null) {
             $this->em->delete($poll);
             $this->em->run();

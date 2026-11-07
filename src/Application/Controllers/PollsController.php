@@ -62,7 +62,7 @@ final class PollsController extends Controller
      */
     public function show(Request $request, Response $response, array $args): Response
     {
-        $poll = $this->polls->getPollById((int) $args['poll_id']);
+        $poll = $this->polls->getPoll((int) $args['poll_id']);
 
         return $this->respondWithJson($response, $poll);
     }
@@ -97,7 +97,7 @@ final class PollsController extends Controller
             return $this->respondBadRequest($response, $errors);
         }
 
-        $poll = $this->polls->getPollById((int) $args['poll_id']);
+        $poll = $this->polls->getPoll((int) $args['poll_id']);
 
         if (array_key_exists('question', $data)) $poll->setQuestion($data['question']);
 
@@ -129,7 +129,7 @@ final class PollsController extends Controller
      */
     public function expire(Request $request, Response $response, array $args): Response
     {
-        $poll = $this->polls->getPollById((int) $args['poll_id']);
+        $poll = $this->polls->getPoll((int) $args['poll_id']);
 
         $poll->expire();
 

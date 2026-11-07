@@ -157,12 +157,14 @@ paths:
       summary: Get puzzle file
       responses:
         '200':
-          description: ''
+          description: Puzzle image
           content:
             image/*:
               schema:
                 type: string
                 format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
 components:
   schemas:
     Poll:
@@ -237,6 +239,22 @@ components:
           type: integer
         user_id:
           type: string
+    BadRequest:
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequest'
   securitySchemes:
     ApiKey:
       type: apiKey

@@ -41,7 +41,13 @@ final class PuzzlesController extends Controller
      */
     public function show(Request $request, Response $response, array $args): Response
     {
-		$file = $this->puzzles->getPuzzleFile($args['fileName']);
+        $fileName = $args['fileName'];
+
+        $validFileNames = $this->puzzles->getPuzzleFileNames();
+
+        if (!in_array($fileName, $validFileNames)) return $this->respondBadRequest($response, ["Invalid file name"]);
+
+		$file = $this->puzzles->getPuzzleFile($fileName);
 
 		return $this->respondWithFile($response, $file);
     }
